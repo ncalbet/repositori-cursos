@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web d'Aprenentatge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: #f8f7f2; min-height: 100vh; color: #1a1a2e; }
+    :root {
+      --english: #3b82f6;
+      --history: #f59e0b;
+      --science: #10b981;
+      --catalan: #ef4444;
+      --social:  #8b5cf6;
+    }
+    .card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: box-shadow .22s, transform .22s; cursor: pointer; display: flex; flex-direction: column; }
+    .card:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.14); transform: translateY(-4px); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; }
+    .chip { padding: 6px 16px; border-radius: 99px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .18s; }
+    .chip.active { background: #1a1a2e; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .chip.inactive { background: white; color: #666; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .btn { padding: 9px 0; border-radius: 9px; border: 1.5px solid; font-size: 13px; font-weight: 800; text-align: center; text-decoration: none; display: block; transition: all .18s; font-family: inherit; cursor: pointer; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+    .modal { background: white; border-radius: 20px; padding: 32px 36px; box-shadow: 0 24px 80px rgba(0,0,0,0.18); }
+    input, textarea, select { font-family: inherit; }
+    .tab { padding: 10px 22px; border-radius: 10px; border: none; font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit; transition: all .18s; }
+    .tab.active { background: #3b82f6; color: white; }
+    .tab.inactive { background: transparent; color: rgba(255,255,255,0.75); }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const e = React.createElement;
+const { useState, useMemo, useEffect } = React;
+
+// ── Data ──────────────────────────────────────────────────────────────
+const SUBJ_COLORS = {
+  "Anglès": "#3b82f6", "Català": "#ef4444", "Història": "#f59e0b",
+  "Ciències Socials": "#8b5cf6", "Ciències": "#10b981",
+  "Matemàtiques": "#ec4899", "Altres": "#6b7280"
+};
+const ALL_SUBJ = Object.keys(SUBJ_COLORS);
+
+const TYPE_MAP = {
+  web:     { label:"Web interactiva", icon:"🌐" },
+  genially:{ label:"Genially",        icon:"✨" },
+  pptx:    { label:"Presentació",     icon:"📊" },
+  doc:     { label:"Document",        icon:"📄" },
+  video:   { label:"Vídeo",           icon:"▶"  },
+  altra:   { label:"Altra",           icon:"📎" },
+};
+
+const STATUS_MAP = {
+  actiu:      { label:"Actiu",          bg:"#dcfce7", col:"#15803d" },
+  construccio:{ label:"En construcció", bg:"#fef9c3", col:"#854d0e" },
+  arxivat:    { label:"Arxivat",        bg:"#f1f5f9", col:"#475569" },
+};
+
+const INITIAL_COURSES = [
+  { id:1, title:"UK Guide Agency",           subject:"Anglès",          level:"4t ESO",      status:"actiu",       url:"https://ncalbet.github.io/uk-guide-agency/uk-guide-v4-FINAL.html",                  teacherUrl:"",                                                         imgSrc:"thumbnails/uk-guide.png",        desc:"Activitat immersiva on els alumnes actuen com a guies turístics del Regne Unit." },
+  { id:2, title:"Manhattan Affair",           subject:"Anglès",          level:"Batxillerat", status:"actiu",       url:"https://ncalbet.github.io/Manhattan-affair/manhattan_affair_v2.html",               teacherUrl:"",                                                         imgSrc:"thumbnails/manhattan.png",        desc:"Webquest sobre el projecte Manhattan: context històric, personatges clau i el debat ètic entorn de la bomba atòmica." },
+  { id:3, title:"Crisi Energètica",           subject:"Ciències Socials", level:"4t ESO",     status:"actiu",       url:"https://ncalbet.github.io/crisi-energetica/crisi_energetica_FINAL.html",            teacherUrl:"https://ncalbet.github.io/crisi-energetica/tauler_docent.html", imgSrc:"thumbnails/crisi-energetica.png", desc:"Anàlisi de la crisi energètica global: causes, conseqüències i alternatives renovables." },
+  { id:4, title:"Introducció a la Geopolítica", subject:"Ciències Socials", level:"Batxillerat", status:"actiu",    url:"https://ncalbet.github.io/geopolitica-mon-actual/",                                  teacherUrl:"https://ncalbet.github.io/geopolitica-mon-actual/?prof",   imgSrc:"thumbnails/geopolitica.png",      desc:"Conceptes fonamentals de geopolítica: estats, fronteres, conflictes i organismes internacionals." },
+  { id:5, title:"Català C1",                  subject:"Català",          level:"C1",          status:"actiu",       url:"https://ncalbet.github.io/catala-c1-trainer/",                                       teacherUrl:"",                                                         imgSrc:"thumbnails/catala-c1.png",        desc:"Preparació per a l'acreditació C1 de català: comprensió lectora i expressió escrita." },
+  { id:6, title:"Phrasal Verbs",              subject:"Anglès",          level:"2n Batx.",    status:"construccio", url:"https://ncalbet.github.io/phrasal-verbs/phrasal-verbs-unit7.html",                  teacherUrl:"",                                                         imgSrc:"thumbnails/phrasal-verbs.png",    desc:"Recull interactiu dels phrasal verbs més freqüents en anglès." },
+  { id:7, title:"English Conditionals",       subject:"Anglès",          level:"3r ESO",      status:"actiu",       url:"https://ncalbet.github.io/english-conditionals/conditionals-presentation.html",     teacherUrl:"",                                                         imgSrc:"thumbnails/conditionals.png",     desc:"Teoria i pràctica de les oracions condicionals en anglès (0, 1st, 2nd, 3rd)." },
+];
+
+// ── Persistence ───────────────────────────────────────────────────────
+function loadCourses() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("wda_urls") || "{}");
+    return INITIAL_COURSES.map(c => Object.assign({}, c, saved[c.id] !== undefined ? { teacherUrl: saved[c.id] } : {}));
+  } catch(e) { return INITIAL_COURSES; }
+}
+function saveTeacherUrl(id, url) {
+  try { const s = JSON.parse(localStorage.getItem("wda_urls")||"{}"); s[id]=url; localStorage.setItem("wda_urls",JSON.stringify(s)); } catch(e){}
+}
+function loadExtras() { try { return JSON.parse(localStorage.getItem("wda_extras")||"[]"); } catch(e){return[];} }
+function saveExtras(l) { try { localStorage.setItem("wda_extras",JSON.stringify(l)); } catch(e){} }
+function loadResources() { try { return JSON.parse(localStorage.getItem("wda_res")||"[]"); } catch(e){return[];} }
+function saveResources(l) { try { localStorage.setItem("wda_res",JSON.stringify(l)); } catch(e){} }
+
+// ── Small components ──────────────────────────────────────────────────
+function StatusBadge({ status }) {
+  const s = STATUS_MAP[status] || STATUS_MAP.actiu;
+  return e('span', { style: { fontSize:12, fontWeight:700, padding:"3px 10px", borderRadius:99, background:s.bg, color:s.col, textTransform:"uppercase", letterSpacing:"0.03em" } }, s.label);
+}
+
+function Thumbnail({ imgSrc, color, title }) {
+  const [err, setErr] = useState(false);
+  if (!err && imgSrc) return e('img', { src:imgSrc, alt:title, onError:()=>setErr(true), style:{width:"100%",height:"100%",objectFit:"cover",display:"block"} });
+  return e('div', { style:{width:"100%",height:"100%",background:color,opacity:0.2,display:"flex",alignItems:"center",justifyContent:"center"} },
+    e('span', { style:{fontSize:40,color:"white",opacity:0.5} }, (title||"?")[0])
+  );
+}
+
+// ── CourseCard ─────────────────────────────────────────────────────────
+function CourseCard({ course, radius, isAdmin, onUpdateUrl }) {
+  const [hov, setHov] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [draftUrl, setDraftUrl] = useState(course.teacherUrl||"");
+  const col = SUBJ_COLORS[course.subject] || "#6b7280";
+
+  return e('div', null,
+    e('div', {
+      className:"card",
+      style:{borderRadius:radius},
+      onMouseEnter:()=>setHov(true),
+      onMouseLeave:()=>setHov(false)
+    },
+      e('div', {style:{height:5,background:col}}),
+      e('a', {href:course.url, target:"_blank", rel:"noopener noreferrer", style:{height:140,overflow:"hidden",flexShrink:0,display:"block"}},
+        e(Thumbnail, {imgSrc:course.imgSrc, color:col, title:course.title})
+      ),
+      e('div', {style:{padding:"16px 18px 18px",display:"flex",flexDirection:"column",gap:8,flex:1}},
+        e('div', {style:{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}},
+          e('span', {style:{fontSize:11,fontWeight:800,letterSpacing:"0.06em",color:col,textTransform:"uppercase"}}, course.subject),
+          e('span', {style:{fontSize:11,color:"#888",fontWeight:600}}, "· "+course.level)
+        ),
+        e('h3', {style:{fontSize:17,fontWeight:800,lineHeight:1.25,color:"#1a1a2e"}}, course.title),
+        e('p', {style:{fontSize:13,lineHeight:1.6,color:"#666",fontWeight:500,flex:1,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical"}}, course.desc),
+        e(StatusBadge, {status:course.status}),
+        e('div', {style:{display:"flex",gap:8,marginTop:4}},
+          e('a', {href:course.url, target:"_blank", rel:"noopener noreferrer",
+            style:{flex:1,padding:"9px 0",borderRadius:9,border:"1.5px solid "+col,background:hov?col:"white",color:hov?"white":col,fontSize:13,fontWeight:800,textAlign:"center",textDecoration:"none",transition:"all .18s"}},
+            "Obrir curs →"
+          ),
+          isAdmin && (course.teacherUrl
+            ? e('a', {href:course.teacherUrl, target:"_blank", rel:"noopener noreferrer",
+                style:{padding:"9px 12px",borderRadius:9,border:"1.5px solid #e2e8f0",background:"#f5f3ff",color:"#7c3aed",fontSize:13,fontWeight:800,textDecoration:"none",whiteSpace:"nowrap"}},
+                "📊 Docent"
+              )
+            : e('button', {onClick:()=>setEditing(true),
+                style:{padding:"9px 10px",borderRadius:9,border:"1.5px dashed #cbd5e1",background:"transparent",color:"#94a3b8",fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}},
+                "+ Docent"
+              )
+          )
+        )
+      )
+    ),
+    editing && e('div', {className:"overlay", onClick:()=>setEditing(false)},
+      e('div', {className:"modal", style:{width:440}, onClick:ev=>ev.stopPropagation()},
+        e('h3', {style:{fontSize:18,fontWeight:900,marginBottom:6}}, "Tauler docent"),
+        e('p', {style:{fontSize:13,color:"#666",marginBottom:16}}, "URL del tauler de ", e('strong',null,course.title)),
+        e('input', {autoFocus:true, value:draftUrl, onChange:ev=>setDraftUrl(ev.target.value), placeholder:"https://...",
+          style:{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #e2e8f0",fontSize:14,outline:"none",marginBottom:16}}),
+        e('div', {style:{display:"flex",gap:10,justifyContent:"flex-end"}},
+          e('button', {onClick:()=>setEditing(false), style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}, "Cancel·lar"),
+          e('button', {onClick:()=>{onUpdateUrl(course.id,draftUrl);setEditing(false);}, style:{padding:"9px 18px",borderRadius:10,border:"none",background:"#7c3aed",color:"white",fontSize:14,fontWeight:800,cursor:"pointer"}}, "Desar")
+        )
+      )
+    )
+  );
+}
+
+// ── ResourceCard ──────────────────────────────────────────────────────
+function ResourceCard({ resource, radius, isAdmin, onDelete }) {
+  const [hov, setHov] = useState(false);
+  const t = TYPE_MAP[resource.resourceType] || TYPE_MAP.altra;
+  const col = SUBJ_COLORS[resource.subject] || "#6b7280";
+  return e('div', {
+    style:{background:"white",borderRadius:radius,overflow:"hidden",boxShadow:hov?"0 8px 28px rgba(0,0,0,0.12)":"0 2px 10px rgba(0,0,0,0.06)",transform:hov?"translateY(-3px)":"none",transition:"all .2s",display:"flex",flexDirection:"column"},
+    onMouseEnter:()=>setHov(true), onMouseLeave:()=>setHov(false)
+  },
+    e('div', {style:{height:4,background:col}}),
+    e('div', {style:{padding:"18px 20px",display:"flex",flexDirection:"column",gap:10,flex:1}},
+      e('div', {style:{display:"flex",alignItems:"flex-start",justifyContent:"space-between"}},
+        e('div', {style:{display:"flex",alignItems:"center",gap:10}},
+          e('div', {style:{width:40,height:40,borderRadius:10,background:col+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}, t.icon),
+          e('div', null,
+            e('div', {style:{fontSize:10,fontWeight:800,color:col,textTransform:"uppercase",letterSpacing:"0.06em"}}, resource.subject),
+            e('div', {style:{fontSize:11,color:"#888",fontWeight:600}}, t.label)
+          )
+        ),
+        isAdmin && e('button', {onClick:()=>onDelete(resource.id), style:{border:"none",background:"none",cursor:"pointer",color:"#aaa",fontSize:16,opacity:hov?1:0,transition:"opacity .2s"}}, "✕")
+      ),
+      e('h3', {style:{fontSize:15,fontWeight:800,lineHeight:1.3,color:"#1a1a2e"}}, resource.title),
+      resource.desc && e('p', {style:{fontSize:12,lineHeight:1.6,color:"#666",overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}, resource.desc),
+      e('a', {href:resource.url, target:"_blank", rel:"noopener noreferrer",
+        style:{marginTop:"auto",padding:"8px 0",borderRadius:8,border:"1.5px solid "+col,background:hov?col:"white",color:hov?"white":col,fontSize:12,fontWeight:800,textAlign:"center",textDecoration:"none",transition:"all .18s",display:"block"}},
+        "Obrir recurs →"
+      )
+    )
+  );
+}
+
+// ── Modals ────────────────────────────────────────────────────────────
+function AdminLogin({ onSuccess, onClose, pin: correctPin }) {
+  const [pin, setPin] = useState("");
+  const [err, setErr] = useState(false);
+  function check() {
+    if (pin === correctPin) onSuccess();
+    else { setErr(true); setPin(""); setTimeout(()=>setErr(false),1500); }
+  }
+  return e('div', {className:"overlay", onClick:onClose},
+    e('div', {className:"modal", style:{width:340,display:"flex",flexDirection:"column",gap:18,textAlign:"center"}, onClick:ev=>ev.stopPropagation()},
+      e('div', {style:{width:56,height:56,borderRadius:16,background:err?"#fee2e2":"#1a1a2e",margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,transition:"background .3s"}}, err?"✕":"🔐"),
+      e('div', null,
+        e('h2', {style:{fontSize:20,fontWeight:900}}, "Accés administrador"),
+        e('p', {style:{fontSize:13,color:"#666",marginTop:4,fontWeight:500}}, "Introdueix el codi PIN per continuar")
+      ),
+      e('input', {autoFocus:true, type:"password", inputMode:"numeric", maxLength:8, value:pin, onChange:ev=>setPin(ev.target.value), onKeyDown:ev=>ev.key==="Enter"&&check(), placeholder:"••••",
+        style:{textAlign:"center",fontSize:24,letterSpacing:"0.3em",padding:"12px",borderRadius:12,border:err?"2px solid #f87171":"2px solid #e2e8f0",outline:"none",fontFamily:"inherit",fontWeight:700}}),
+      err && e('p', {style:{color:"#ef4444",fontSize:13,fontWeight:700,marginTop:-8}}, "PIN incorrecte."),
+      e('button', {onClick:check, style:{padding:"12px",borderRadius:12,border:"none",background:"#1a1a2e",color:"white",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}, "Entrar")
+    )
+  );
+}
+
+function AddModal({ mode, onSave, onClose }) {
+  const isCourse = mode === "curs";
+  const [f, setF] = useState({title:"",desc:"",subject:"Anglès",level:"",status:"actiu",url:"",teacherUrl:"",type:"web"});
+  const set = (k,v) => setF(p => Object.assign({},p,{[k]:v}));
+  const inp = {width:"100%",padding:"9px 12px",borderRadius:9,border:"1.5px solid #e2e8f0",fontSize:14,outline:"none",fontFamily:"inherit"};
+  const lbl = {fontSize:12,fontWeight:800,color:"#555",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:4,display:"block"};
+  function save() {
+    if (!f.title.trim()||!f.url.trim()) return;
+    if (isCourse) onSave({type:"curs",data:{id:Date.now(),title:f.title,desc:f.desc,subject:f.subject,level:f.level,status:f.status,url:f.url,teacherUrl:f.teacherUrl,color:SUBJ_COLORS[f.subject]||"#6b7280",imgSrc:""}});
+    else onSave({type:"recurs",data:{id:Date.now(),title:f.title,desc:f.desc,subject:f.subject,url:f.url,resourceType:f.type}});
+  }
+  return e('div', {className:"overlay", style:{padding:16}, onClick:onClose},
+    e('div', {className:"modal", style:{width:"100%",maxWidth:500,maxHeight:"90vh",overflowY:"auto"}, onClick:ev=>ev.stopPropagation()},
+      e('h3', {style:{fontSize:19,fontWeight:900,marginBottom:4}}, isCourse?"Afegir nou curs":"Afegir recurs"),
+      e('p', {style:{fontSize:13,color:"#666",marginBottom:20}}, isCourse?"Afegeix una nova web":"Afegeix una presentació, genially o eina"),
+      e('div', {style:{display:"flex",flexDirection:"column",gap:14}},
+        e('div', null, e('label',{style:lbl},"Títol"), e('input',{style:inp,value:f.title,onChange:ev=>set("title",ev.target.value),autoFocus:true})),
+        e('div', null, e('label',{style:lbl},"Descripció"), e('textarea',{style:{...inp,resize:"vertical",minHeight:72},value:f.desc,onChange:ev=>set("desc",ev.target.value)})),
+        e('div', null, e('label',{style:lbl},"URL"), e('input',{style:inp,value:f.url,onChange:ev=>set("url",ev.target.value),placeholder:"https://..."})),
+        e('div', null, e('label',{style:lbl},"Assignatura"),
+          e('select',{style:{...inp,cursor:"pointer"},value:f.subject,onChange:ev=>set("subject",ev.target.value)},
+            ALL_SUBJ.map(s=>e('option',{key:s},s))
+          )
+        ),
+        isCourse && e('div', null, e('label',{style:lbl},"Nivell"), e('input',{style:inp,value:f.level,onChange:ev=>set("level",ev.target.value),placeholder:"3r ESO, Batxillerat..."})),
+        isCourse && e('div', null, e('label',{style:lbl},"Estat"),
+          e('select',{style:{...inp,cursor:"pointer"},value:f.status,onChange:ev=>set("status",ev.target.value)},
+            e('option',{value:"actiu"},"Actiu"),
+            e('option',{value:"construccio"},"En construcció"),
+            e('option',{value:"arxivat"},"Arxivat")
+          )
+        ),
+        isCourse && e('div', null, e('label',{style:lbl},"URL tauler docent (opcional)"), e('input',{style:inp,value:f.teacherUrl,onChange:ev=>set("teacherUrl",ev.target.value),placeholder:"https://..."})),
+        !isCourse && e('div', null, e('label',{style:lbl},"Tipus"),
+          e('select',{style:{...inp,cursor:"pointer"},value:f.type,onChange:ev=>set("type",ev.target.value)},
+            Object.entries(TYPE_MAP).map(([v,t])=>e('option',{key:v,value:v},t.icon+" "+t.label))
+          )
+        )
+      ),
+      e('div', {style:{display:"flex",gap:10,justifyContent:"flex-end",marginTop:24}},
+        e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancel·lar"),
+        e('button',{onClick:save,style:{padding:"9px 20px",borderRadius:10,border:"none",background:isCourse?"#3b82f6":"#8b5cf6",color:"white",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit",opacity:(!f.title||!f.url)?0.4:1}}, "Desar")
+      )
+    )
+  );
+}
+
+function GitHubModal({ githubUser, existingUrls, onImport, onClose }) {
+  const [repos, setRepos] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadErr, setLoadErr] = useState(null);
+  const [selected, setSelected] = useState({});
+  useEffect(function() {
+    fetch("https://api.github.com/users/"+githubUser+"/repos?per_page=100&sort=updated")
+      .then(r=>r.ok?r.json():Promise.reject(r.status))
+      .then(data=>{setRepos(data.filter(r=>!r.fork&&!r.name.endsWith(".github.io")));setLoading(false);})
+      .catch(err=>{setLoadErr("Error: "+err);setLoading(false);});
+  },[]);
+  function toggle(name,hp) {
+    setSelected(s=>{const n=Object.assign({},s);if(n[name])delete n[name];else n[name]={url:hp||"https://"+githubUser+".github.io/"+name+"/",subject:"Anglès",level:""};return n;});
+  }
+  function setField(name,k,v){setSelected(s=>Object.assign({},s,{[name]:Object.assign({},s[name],{[k]:v})}));}
+  function doImport(){
+    const items=Object.entries(selected).map(([name,d],i)=>({id:Date.now()+i,title:name.replace(/-/g," ").replace(/\b\w/g,c=>c.toUpperCase()),desc:(repos&&repos.find(r=>r.name===name)||{}).description||"",subject:d.subject,level:d.level,status:"actiu",url:d.url,teacherUrl:"",color:SUBJ_COLORS[d.subject]||"#6b7280",imgSrc:""}));
+    onImport(items);
+  }
+  const sel=Object.keys(selected).length;
+  const inpS={padding:"5px 8px",borderRadius:7,border:"1.5px solid #e2e8f0",fontSize:12,outline:"none",background:"white",width:"100%",fontFamily:"inherit"};
+  return e('div',{className:"overlay",style:{padding:16},onClick:onClose},
+    e('div',{className:"modal",style:{width:"100%",maxWidth:620,maxHeight:"85vh",display:"flex",flexDirection:"column",padding:"28px 32px"},onClick:ev=>ev.stopPropagation()},
+      e('div',{style:{marginBottom:18}},
+        e('h3',{style:{fontSize:19,fontWeight:900}},"Importar des de GitHub"),
+        e('p',{style:{fontSize:13,color:"#666",marginTop:3}},"Repositoris de ",e('strong',null,githubUser)," — selecciona els que vols afegir")
+      ),
+      e('div',{style:{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:8}},
+        loading&&e('div',{style:{textAlign:"center",padding:40,color:"#888"}},"⏳ Carregant repositoris..."),
+        loadErr&&e('div',{style:{textAlign:"center",padding:40,color:"#ef4444"}},loadErr),
+        repos&&repos.map(repo=>{
+          const added=existingUrls.some(u=>u.includes(repo.name));
+          const isSel=!!selected[repo.name];
+          return e('div',{key:repo.name,style:{border:isSel?"2px solid #3b82f6":"1.5px solid #e5e7eb",borderRadius:12,padding:"12px 16px",background:isSel?"#eff6ff":added?"#f9fafb":"white",opacity:added?0.55:1,transition:"all .15s"}},
+            e('div',{style:{display:"flex",alignItems:"center",gap:12}},
+              e('input',{type:"checkbox",checked:isSel,disabled:added,onChange:()=>toggle(repo.name,repo.homepage),style:{width:18,height:18,cursor:"pointer"}}),
+              e('div',{style:{flex:1,minWidth:0}},
+                e('div',{style:{display:"flex",alignItems:"center",gap:8}},
+                  e('span',{style:{fontSize:14,fontWeight:800}},repo.name),
+                  added&&e('span',{style:{fontSize:11,color:"#15803d",fontWeight:700,background:"#dcfce7",padding:"1px 8px",borderRadius:99}},"Ja afegit")
+                ),
+                repo.description&&e('div',{style:{fontSize:12,color:"#666",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},repo.description),
+                e('div',{style:{fontSize:11,color:"#94a3b8"}},repo.homepage||"https://"+githubUser+".github.io/"+repo.name+"/")
+              )
+            ),
+            isSel&&e('div',{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginTop:10}},
+              e('select',{value:selected[repo.name].subject,onChange:ev=>setField(repo.name,"subject",ev.target.value),style:inpS},ALL_SUBJ.map(s=>e('option',{key:s},s))),
+              e('input',{style:inpS,placeholder:"Nivell (3r ESO...)",value:selected[repo.name].level,onChange:ev=>setField(repo.name,"level",ev.target.value)}),
+              e('input',{style:inpS,placeholder:"URL custom",value:selected[repo.name].url,onChange:ev=>setField(repo.name,"url",ev.target.value)})
+            )
+          );
+        })
+      ),
+      e('div',{style:{display:"flex",gap:10,justifyContent:"space-between",alignItems:"center",marginTop:20,paddingTop:16,borderTop:"1.5px solid #e5e7eb"}},
+        e('span',{style:{fontSize:13,color:"#666",fontWeight:600}},sel+" seleccionats"),
+        e('div',{style:{display:"flex",gap:8}},
+          e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancel·lar"),
+          e('button',{onClick:doImport,disabled:!sel,style:{padding:"9px 20px",borderRadius:10,border:"none",background:"#1a1a2e",color:"white",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit",opacity:sel?1:0.4}},"Importar"+(sel?" ("+sel+")":""))
+        )
+      )
+    )
+  );
+}
+
+function LoginModal({ onClose }) {
+  const [user,setUser]=useState("");const [pass,setPass]=useState("");
+  const inp={width:"100%",padding:"10px 14px",borderRadius:10,border:"1.5px solid #e2e8f0",fontSize:15,outline:"none",fontFamily:"inherit"};
+  return e('div',{className:"overlay",onClick:onClose},
+    e('div',{className:"modal",style:{width:380,display:"flex",flexDirection:"column",gap:20},onClick:ev=>ev.stopPropagation()},
+      e('div',{style:{textAlign:"center"}},
+        e('div',{style:{width:56,height:56,borderRadius:16,background:"#dbeafe",margin:"0 auto 12px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}},"🎓"),
+        e('h2',{style:{fontSize:22,fontWeight:900}},"Accés Alumnes"),
+        e('p',{style:{fontSize:13,color:"#666",marginTop:4}},"Entra amb el teu usuari per veure els teus cursos")
+      ),
+      e('div',{style:{display:"flex",flexDirection:"column",gap:12}},
+        e('input',{style:inp,placeholder:"Nom d'usuari",value:user,onChange:ev=>setUser(ev.target.value)}),
+        e('input',{type:"password",style:inp,placeholder:"Contrasenya",value:pass,onChange:ev=>setPass(ev.target.value)})
+      ),
+      e('button',{style:{padding:"12px",borderRadius:12,border:"none",background:"#3b82f6",color:"white",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"Entrar"),
+      e('p',{style:{textAlign:"center",fontSize:12,color:"#94a3b8",fontWeight:600}},"Funció pròximament disponible")
+    )
+  );
+}
+
+// ── App ───────────────────────────────────────────────────────────────
+function App() {
+  // Settings stored in localStorage
+  const [settings] = useState(function(){
+    try{return JSON.parse(localStorage.getItem("wda_settings")||"null")||{schoolName:"Web d'Aprenentatge",teacherName:"Profesor/a",adminPin:"1234",githubUser:"ncalbet",cardRadius:16,showGrouping:true};}
+    catch(e){return{schoolName:"Web d'Aprenentatge",teacherName:"Profesor/a",adminPin:"1234",githubUser:"ncalbet",cardRadius:16,showGrouping:true};}
+  });
+
+  const [courses,setCourses]=useState(()=>[...loadCourses(),...loadExtras()]);
+  const [resources,setResources]=useState(loadResources);
+  const [search,setSearch]=useState("");
+  const [filterSubj,setFilterSubj]=useState("Totes");
+  const [filterSt,setFilterSt]=useState("Tots");
+  const [tab,setTab]=useState("cursos");
+  const [addModal,setAddModal]=useState(null);
+  const [showLogin,setShowLogin]=useState(false);
+  const [showAdminLogin,setShowAdminLogin]=useState(false);
+  const [showGithub,setShowGithub]=useState(false);
+  const [isAdmin,setIsAdmin]=useState(()=>sessionStorage.getItem("wda_admin")==="1");
+
+  function adminIn(){sessionStorage.setItem("wda_admin","1");setIsAdmin(true);setShowAdminLogin(false);}
+  function adminOut(){sessionStorage.removeItem("wda_admin");setIsAdmin(false);}
+
+  function handleUrl(id,url){saveTeacherUrl(id,url);setCourses(p=>p.map(c=>c.id===id?Object.assign({},c,{teacherUrl:url}):c));}
+  function handleAdd(item){
+    if(item.type==="curs"){const ex=[...loadExtras(),item.data];saveExtras(ex);setCourses(p=>[...p,item.data]);}
+    else{const nr=[...resources,item.data];saveResources(nr);setResources(nr);}
+    setAddModal(null);
+  }
+  function handleGithub(items){const ex=[...loadExtras(),...items];saveExtras(ex);setCourses(p=>[...p,...items]);setShowGithub(false);}
+  function handleDelRes(id){const u=resources.filter(r=>r.id!==id);saveResources(u);setResources(u);}
+
+  const visible=isAdmin?courses:courses.filter(c=>c.status==="actiu");
+  const uniqSubj=["Totes",...[...new Set(visible.map(c=>c.subject))]];
+  const statuses=["Tots","Actiu","En construcció","Arxivat"];
+  const existingUrls=courses.map(c=>c.url);
+
+  const filtered=useMemo(()=>visible.filter(c=>{
+    const q=search.toLowerCase();
+    const ms=!q||c.title.toLowerCase().includes(q)||c.subject.toLowerCase().includes(q)||(c.level||"").toLowerCase().includes(q);
+    const mf=filterSubj==="Totes"||c.subject===filterSubj;
+    const mst=!isAdmin||filterSt==="Tots"||(filterSt==="Actiu"&&c.status==="actiu")||(filterSt==="En construcció"&&c.status==="construccio")||(filterSt==="Arxivat"&&c.status==="arxivat");
+    return ms&&mf&&mst;
+  }),[search,filterSubj,filterSt,visible,isAdmin]);
+
+  const filtRes=useMemo(()=>resources.filter(r=>{const q=search.toLowerCase();return!q||r.title.toLowerCase().includes(q)||r.subject.toLowerCase().includes(q);}),[search,resources]);
+
+  const grouped=useMemo(()=>{
+    if(!settings.showGrouping)return{"Tots els cursos":filtered};
+    const g={};filtered.forEach(c=>{if(!g[c.subject])g[c.subject]=[];g[c.subject].push(c);});return g;
+  },[filtered,settings.showGrouping]);
+
+  const groupedRes=useMemo(()=>{
+    const g={};filtRes.forEach(r=>{const k=r.subject||"Altres";if(!g[k])g[k]=[];g[k].push(r);});return g;
+  },[filtRes]);
+
+  function chip(active,color){return{padding:"6px 16px",borderRadius:99,border:"none",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",background:active?(color||"#1a1a2e"):"white",color:active?"white":"#666",boxShadow:active?"0 2px 8px rgba(0,0,0,0.15)":"0 1px 4px rgba(0,0,0,0.07)",transition:"all .18s"};}
+  function tabStyle(active){return{padding:"10px 22px",borderRadius:10,border:"none",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit",background:active?"#3b82f6":"transparent",color:active?"white":"rgba(255,255,255,0.75)",transition:"all .18s"};}
+
+  return e('div', {style:{minHeight:"100vh",background:"#f8f7f2"}},
+
+    // Header
+    e('header',{style:{background:"white",borderBottom:"1.5px solid #e5e7eb",padding:"0 32px",position:"sticky",top:0,zIndex:100}},
+      e('div',{style:{maxWidth:1200,margin:"0 auto",height:64,display:"flex",alignItems:"center",justifyContent:"space-between"}},
+        e('div',{style:{display:"flex",alignItems:"center",gap:12}},
+          e('div',{style:{width:38,height:38,borderRadius:10,background:"#3b82f6",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}},"📚"),
+          e('div',null,
+            e('div',{style:{fontSize:17,fontWeight:900,lineHeight:1.1}},settings.schoolName),
+            e('div',{style:{fontSize:11,color:"#888",fontWeight:600}},settings.teacherName)
+          )
+        ),
+        e('div',{style:{display:"flex",gap:8,alignItems:"center"}},
+          isAdmin&&e('div',{style:{display:"flex",gap:6,alignItems:"center"}},
+            e('button',{onClick:()=>setShowGithub(true),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #1a1a2e",background:"white",color:"#1a1a2e",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"⬇ GitHub"),
+            e('button',{onClick:()=>setAddModal("curs"),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #3b82f6",background:"white",color:"#3b82f6",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"+ Curs"),
+            e('button',{onClick:()=>setAddModal("recurs"),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #8b5cf6",background:"white",color:"#8b5cf6",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"+ Recurs"),
+            e('div',{style:{width:1,height:24,background:"#e5e7eb"}}),
+            e('div',{style:{display:"flex",alignItems:"center",gap:6,padding:"5px 10px",borderRadius:8,background:"#1a1a2e",color:"white",fontSize:11,fontWeight:800}},
+              "🔐 Admin",
+              e('button',{onClick:adminOut,style:{background:"rgba(255,255,255,0.18)",border:"none",color:"white",borderRadius:5,padding:"1px 7px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Sortir")
+            )
+          ),
+          e('button',{onClick:()=>setShowLogin(true),style:{padding:"8px 18px",borderRadius:10,border:"none",background:"#3b82f6",color:"white",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"🎓 Alumnes"),
+          !isAdmin&&e('button',{onClick:()=>setShowAdminLogin(true),title:"Administrador",style:{width:32,height:32,borderRadius:8,border:"1.5px solid #e5e7eb",background:"white",color:"#aaa",fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}},"⚙")
+        )
+      )
+    ),
+
+    // Hero
+    e('div',{style:{background:"linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)",padding:"36px 32px 28px"}},
+      e('div',{style:{maxWidth:1200,margin:"0 auto"}},
+        e('div',{style:{display:"flex",alignItems:"flex-end",justifyContent:"space-between",flexWrap:"wrap",gap:16,marginBottom:20}},
+          e('div',null,
+            e('h1',{style:{fontSize:30,fontWeight:900,color:"white",marginBottom:4}},tab==="cursos"?"Els meus cursos":"Recursos educatius"),
+            e('p',{style:{color:"rgba(255,255,255,0.8)",fontWeight:600,fontSize:14}},tab==="cursos"?visible.length+" webs d'aprenentatge":resources.length+" recursos disponibles")
+          ),
+          e('div',{style:{display:"flex",gap:4,background:"rgba(0,0,0,0.2)",borderRadius:12,padding:4}},
+            e('button',{style:tabStyle(tab==="cursos"),onClick:()=>setTab("cursos")},"📚 Cursos"),
+            e('button',{style:tabStyle(tab==="recursos"),onClick:()=>setTab("recursos")},"🗂 Recursos")
+          )
+        ),
+        e('div',{style:{position:"relative",maxWidth:480}},
+          e('span',{style:{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",fontSize:18,opacity:0.5}},"🔍"),
+          e('input',{value:search,onChange:ev=>setSearch(ev.target.value),placeholder:"Cerca per títol, matèria o nivell...",
+            style:{width:"100%",padding:"12px 16px 12px 44px",borderRadius:12,border:"none",fontSize:15,fontFamily:"inherit",fontWeight:600,background:"rgba(255,255,255,0.95)",boxShadow:"0 4px 20px rgba(0,0,0,0.15)",outline:"none"}})
+        )
+      )
+    ),
+
+    // Filters
+    tab==="cursos"&&e('div',{style:{background:"white",borderBottom:"1.5px solid #e5e7eb",padding:"12px 32px",position:"sticky",top:64,zIndex:99}},
+      e('div',{style:{maxWidth:1200,margin:"0 auto",display:"flex",gap:16,flexWrap:"wrap",alignItems:"center"}},
+        e('div',{style:{display:"flex",gap:6,flexWrap:"wrap"}},
+          uniqSubj.map(s=>e('button',{key:s,style:chip(filterSubj===s),onClick:()=>setFilterSubj(s)},s))
+        ),
+        isAdmin&&e('div',null,
+          e('div',{style:{display:"flex",gap:6}},
+            statuses.map(s=>e('button',{key:s,style:chip(filterSt===s,"#10b981"),onClick:()=>setFilterSt(s)},s))
+          )
+        )
+      )
+    ),
+
+    // Content
+    e('main',{style:{maxWidth:1200,margin:"0 auto",padding:"36px 32px 64px"}},
+
+      tab==="cursos"&&(
+        Object.entries(grouped).length===0
+          ?e('div',{style:{textAlign:"center",padding:"80px 0",color:"#888"}},e('div',{style:{fontSize:48,marginBottom:12}},"🔎"),e('div',{style:{fontSize:18,fontWeight:700}},"Cap resultat trobat"))
+          :Object.entries(grouped).map(([group,gcs])=>
+            e('section',{key:group,style:{marginBottom:48}},
+              settings.showGrouping&&e('div',{style:{display:"flex",alignItems:"center",gap:12,marginBottom:20}},
+                e('h2',{style:{fontSize:18,fontWeight:900,color:"#2d2d4e"}},group),
+                e('span',{style:{fontSize:12,fontWeight:700,background:"#f1f5f9",color:"#64748b",padding:"2px 10px",borderRadius:99}},gcs.length),
+                e('div',{style:{flex:1,height:1.5,background:"#e5e7eb"}})
+              ),
+              e('div',{className:"grid"},
+                gcs.map(c=>e(CourseCard,{key:c.id,course:c,radius:settings.cardRadius,isAdmin,onUpdateUrl:handleUrl}))
+              )
+            )
+          )
+      ),
+
+      tab==="recursos"&&(
+        resources.length===0
+          ?e('div',{style:{textAlign:"center",padding:"80px 0",color:"#888"}},
+              e('div',{style:{fontSize:48,marginBottom:12}},"🗂"),
+              e('div',{style:{fontSize:18,fontWeight:700}},"Encara no hi ha recursos"),
+              isAdmin&&e('button',{onClick:()=>setAddModal("recurs"),style:{marginTop:20,padding:"11px 24px",borderRadius:12,border:"none",background:"#8b5cf6",color:"white",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"+ Afegir primer recurs")
+            )
+          :Object.entries(groupedRes).map(([group,grs])=>
+              e('section',{key:group,style:{marginBottom:44}},
+                e('div',{style:{display:"flex",alignItems:"center",gap:12,marginBottom:18}},
+                  e('h2',{style:{fontSize:18,fontWeight:900,color:"#2d2d4e"}},group),
+                  e('span',{style:{fontSize:12,fontWeight:700,background:"#f1f5f9",color:"#64748b",padding:"2px 10px",borderRadius:99}},grs.length),
+                  e('div',{style:{flex:1,height:1.5,background:"#e5e7eb"}})
+                ),
+                e('div',{style:{display:"grid",gridTemplateColumns:"repeat(auto-fill, minmax(240px, 1fr))",gap:18}},
+                  grs.map(r=>e(ResourceCard,{key:r.id,resource:r,radius:settings.cardRadius,isAdmin,onDelete:handleDelRes}))
+                )
+              )
+            )
+      )
+    ),
+
+    // Modals
+    showLogin&&e(LoginModal,{onClose:()=>setShowLogin(false)}),
+    showAdminLogin&&e(AdminLogin,{pin:settings.adminPin,onSuccess:adminIn,onClose:()=>setShowAdminLogin(false)}),
+    addModal&&e(AddModal,{mode:addModal,onSave:handleAdd,onClose:()=>setAddModal(null)}),
+    showGithub&&e(GitHubModal,{githubUser:settings.githubUser,existingUrls,onImport:handleGithub,onClose:()=>setShowGithub(false)})
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(e(App, null));
+</script>
+</body>
+</html>
