@@ -66,7 +66,9 @@
       "imgSrc": "thumbnails/phrasal-verbs.png",
       "desc": "Recull interactiu dels phrasal verbs més freqüents en anglès.",
       "tipus": "curs"
-    },
+    }
+  ],
+  "resources": [
     {
       "id": 7,
       "title": "English Conditionals",
@@ -76,9 +78,10 @@
       "url": "https://ncalbet.github.io/english-conditionals/conditionals-presentation.html",
       "teacherUrl": "",
       "imgSrc": "thumbnails/conditionals.png",
-      "desc": "Teoria i pràctica de les oracions condicionals en anglès (0, 1st, 2nd, 3rd)."
+      "desc": "Teoria i pràctica de les oracions condicionals en anglès (0, 1st, 2nd, 3rd).",
+      "tipus": "recurs",
+      "resourceType": "web"
     }
   ],
-  "resources": [],
-  "updatedAt": "2026-04-29T15:21:51.523Z"
+  "updatedAt": "2026-04-29T15:21:58.738Z"
 }
