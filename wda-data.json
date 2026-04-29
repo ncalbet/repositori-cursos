@@ -1,0 +1,84 @@
+{
+  "courses": [
+    {
+      "id": 1,
+      "title": "UK Guide Agency",
+      "subject": "Anglès",
+      "level": "4t ESO",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/uk-guide-agency/uk-guide-v4-FINAL.html",
+      "teacherUrl": "",
+      "imgSrc": "thumbnails/uk-guide.png",
+      "desc": "Activitat immersiva on els alumnes actuen com a guies turístics del Regne Unit."
+    },
+    {
+      "id": 2,
+      "title": "Manhattan Affair",
+      "subject": "Anglès",
+      "level": "Batxillerat",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/Manhattan-affair/manhattan_affair_v2.html",
+      "teacherUrl": "",
+      "imgSrc": "thumbnails/manhattan.png",
+      "desc": "Webquest sobre el projecte Manhattan: context històric, personatges clau i el debat ètic entorn de la bomba atòmica."
+    },
+    {
+      "id": 3,
+      "title": "Crisi Energètica",
+      "subject": "Ciències Socials",
+      "level": "4t ESO",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/crisi-energetica/crisi_energetica_FINAL.html",
+      "teacherUrl": "https://ncalbet.github.io/crisi-energetica/tauler_docent.html",
+      "imgSrc": "thumbnails/crisi-energetica.png",
+      "desc": "Anàlisi de la crisi energètica global: causes, conseqüències i alternatives renovables."
+    },
+    {
+      "id": 4,
+      "title": "Introducció a la Geopolítica",
+      "subject": "Ciències Socials",
+      "level": "Batxillerat",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/geopolitica-mon-actual/",
+      "teacherUrl": "https://ncalbet.github.io/geopolitica-mon-actual/?prof",
+      "imgSrc": "thumbnails/geopolitica.png",
+      "desc": "Conceptes fonamentals de geopolítica: estats, fronteres, conflictes i organismes internacionals."
+    },
+    {
+      "id": 5,
+      "title": "Català C1",
+      "subject": "Català",
+      "level": "C1",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/catala-c1-trainer/",
+      "teacherUrl": "",
+      "imgSrc": "thumbnails/catala-c1.png",
+      "desc": "Preparació per a l'acreditació C1 de català: comprensió lectora i expressió escrita."
+    },
+    {
+      "id": 6,
+      "title": "Phrasal Verbs",
+      "subject": "Anglès",
+      "level": "2n Batx.",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/phrasal-verbs/phrasal-verbs-unit7.html",
+      "teacherUrl": "",
+      "imgSrc": "thumbnails/phrasal-verbs.png",
+      "desc": "Recull interactiu dels phrasal verbs més freqüents en anglès.",
+      "tipus": "curs"
+    },
+    {
+      "id": 7,
+      "title": "English Conditionals",
+      "subject": "Anglès",
+      "level": "3r ESO",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/english-conditionals/conditionals-presentation.html",
+      "teacherUrl": "",
+      "imgSrc": "thumbnails/conditionals.png",
+      "desc": "Teoria i pràctica de les oracions condicionals en anglès (0, 1st, 2nd, 3rd)."
+    }
+  ],
+  "resources": [],
+  "updatedAt": "2026-04-29T15:21:51.523Z"
+}
