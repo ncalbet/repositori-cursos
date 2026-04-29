@@ -75,11 +75,24 @@ const INITIAL_COURSES = [
 function loadCourses() {
   try {
     const saved = JSON.parse(localStorage.getItem("wda_urls") || "{}");
-    return INITIAL_COURSES.map(c => Object.assign({}, c, saved[c.id] !== undefined ? { teacherUrl: saved[c.id] } : {}));
+    const edits = JSON.parse(localStorage.getItem("wda_edits") || "{}");
+    const deleted = JSON.parse(localStorage.getItem("wda_deleted") || "[]");
+    return INITIAL_COURSES
+      .filter(c => !deleted.includes(c.id))
+      .map(c => Object.assign({}, c,
+        saved[c.id] !== undefined ? { teacherUrl: saved[c.id] } : {},
+        edits[c.id] || {}
+      ));
   } catch(e) { return INITIAL_COURSES; }
 }
 function saveTeacherUrl(id, url) {
   try { const s = JSON.parse(localStorage.getItem("wda_urls")||"{}"); s[id]=url; localStorage.setItem("wda_urls",JSON.stringify(s)); } catch(e){}
+}
+function saveCourseEdits(id, fields) {
+  try { const s = JSON.parse(localStorage.getItem("wda_edits")||"{}"); s[id]=Object.assign({},s[id]||{},fields); localStorage.setItem("wda_edits",JSON.stringify(s)); } catch(e){}
+}
+function saveDeletedCourse(id) {
+  try { const s = JSON.parse(localStorage.getItem("wda_deleted")||"[]"); if(!s.includes(id)){s.push(id);localStorage.setItem("wda_deleted",JSON.stringify(s));} } catch(e){}
 }
 function loadExtras() { try { return JSON.parse(localStorage.getItem("wda_extras")||"[]"); } catch(e){return[];} }
 function saveExtras(l) { try { localStorage.setItem("wda_extras",JSON.stringify(l)); } catch(e){} }
@@ -100,20 +113,91 @@ function Thumbnail({ imgSrc, color, title }) {
   );
 }
 
+// ── EditCourseModal ────────────────────────────────────────────────────
+function EditCourseModal({ course, onSave, onDelete, onClose }) {
+  const [status, setStatus] = useState(course.status || "actiu");
+  const [subject, setSubject] = useState(course.subject || "Anglès");
+  const [teacherUrl, setTeacherUrl] = useState(course.teacherUrl || "");
+  const [confirmDel, setConfirmDel] = useState(false);
+  const inp = {width:"100%",padding:"9px 12px",borderRadius:9,border:"1.5px solid #e2e8f0",fontSize:14,outline:"none",fontFamily:"inherit"};
+  const lbl = {fontSize:12,fontWeight:800,color:"#555",textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:4,display:"block"};
+  return e('div', {className:"overlay", onClick:onClose},
+    e('div', {className:"modal", style:{width:440}, onClick:ev=>ev.stopPropagation()},
+      e('div', {style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:18}},
+        e('div', null,
+          e('h3', {style:{fontSize:18,fontWeight:900,marginBottom:2}}, "Editar curs"),
+          e('p', {style:{fontSize:13,color:"#666"}}, course.title)
+        ),
+        e('button', {onClick:onClose, style:{border:"none",background:"none",fontSize:20,cursor:"pointer",color:"#aaa",lineHeight:1}}, "×")
+      ),
+      e('div', {style:{display:"flex",flexDirection:"column",gap:14}},
+        e('div', null,
+          e('label', {style:lbl}, "Assignatura"),
+          e('select', {style:{...inp,cursor:"pointer"}, value:subject, onChange:ev=>setSubject(ev.target.value)},
+            ALL_SUBJ.map(s => e('option', {key:s}, s))
+          )
+        ),
+        e('div', null,
+          e('label', {style:lbl}, "Estat"),
+          e('div', {style:{display:"flex",gap:8}},
+            Object.entries(STATUS_MAP).map(([key,s]) =>
+              e('button', {
+                key,
+                onClick:()=>setStatus(key),
+                style:{flex:1,padding:"8px 0",borderRadius:9,border:"1.5px solid "+(status===key?s.col:"#e2e8f0"),background:status===key?s.bg:"white",color:status===key?s.col:"#888",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}
+              }, s.label)
+            )
+          )
+        ),
+        e('div', null,
+          e('label', {style:lbl}, "URL tauler docent"),
+          e('input', {style:inp, value:teacherUrl, onChange:ev=>setTeacherUrl(ev.target.value), placeholder:"https://..."})
+        )
+      ),
+      e('div', {style:{display:"flex",gap:8,justifyContent:"space-between",alignItems:"center",marginTop:22}},
+        confirmDel
+          ? e('div', {style:{display:"flex",gap:8,alignItems:"center"}},
+              e('span', {style:{fontSize:12,color:"#ef4444",fontWeight:700}}, "Segur?"),
+              e('button', {onClick:()=>onDelete(course.id), style:{padding:"7px 14px",borderRadius:9,border:"none",background:"#ef4444",color:"white",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}, "Sí, eliminar"),
+              e('button', {onClick:()=>setConfirmDel(false), style:{padding:"7px 12px",borderRadius:9,border:"1.5px solid #e2e8f0",background:"white",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}, "No")
+            )
+          : e('button', {onClick:()=>setConfirmDel(true), style:{padding:"7px 14px",borderRadius:9,border:"1.5px solid #fca5a5",background:"#fff1f2",color:"#ef4444",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}, "🗑 Eliminar"),
+        e('div', {style:{display:"flex",gap:8}},
+          e('button', {onClick:onClose, style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}, "Cancel·lar"),
+          e('button', {onClick:()=>onSave(course.id,{status,subject,teacherUrl}), style:{padding:"9px 20px",borderRadius:10,border:"none",background:"#1a1a2e",color:"white",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}, "Desar")
+        )
+      )
+    )
+  );
+}
+
 // ── CourseCard ─────────────────────────────────────────────────────────
-function CourseCard({ course, radius, isAdmin, onUpdateUrl }) {
+function CourseCard({ course, radius, isAdmin, onUpdateUrl, onEdit, onDelete }) {
   const [hov, setHov] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [draftUrl, setDraftUrl] = useState(course.teacherUrl||"");
+  const [showEdit, setShowEdit] = useState(false);
   const col = SUBJ_COLORS[course.subject] || "#6b7280";
+
+  function handleSave(id, fields) {
+    onEdit(id, fields);
+    setShowEdit(false);
+  }
+  function handleDelete(id) {
+    onDelete(id);
+    setShowEdit(false);
+  }
 
   return e('div', null,
     e('div', {
       className:"card",
-      style:{borderRadius:radius},
+      style:{borderRadius:radius,position:"relative"},
       onMouseEnter:()=>setHov(true),
       onMouseLeave:()=>setHov(false)
     },
+      isAdmin && e('button', {
+        onClick:ev=>{ev.preventDefault();ev.stopPropagation();setShowEdit(true);},
+        title:"Editar",
+        style:{position:"absolute",top:10,right:10,zIndex:10,width:28,height:28,borderRadius:7,border:"1.5px solid #e2e8f0",background:"white",color:"#666",fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",opacity:hov?1:0,transition:"opacity .18s",fontFamily:"inherit",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}
+      }, "✏️"),
       e('div', {style:{height:5,background:col}}),
       e('a', {href:course.url, target:"_blank", rel:"noopener noreferrer", style:{height:140,overflow:"hidden",flexShrink:0,display:"block"}},
         e(Thumbnail, {imgSrc:course.imgSrc, color:col, title:course.title})
@@ -136,7 +220,7 @@ function CourseCard({ course, radius, isAdmin, onUpdateUrl }) {
                 style:{padding:"9px 12px",borderRadius:9,border:"1.5px solid #e2e8f0",background:"#f5f3ff",color:"#7c3aed",fontSize:13,fontWeight:800,textDecoration:"none",whiteSpace:"nowrap"}},
                 "📊 Docent"
               )
-            : e('button', {onClick:()=>setEditing(true),
+            : e('button', {onClick:()=>setShowEdit(true),
                 style:{padding:"9px 10px",borderRadius:9,border:"1.5px dashed #cbd5e1",background:"transparent",color:"#94a3b8",fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}},
                 "+ Docent"
               )
@@ -144,18 +228,7 @@ function CourseCard({ course, radius, isAdmin, onUpdateUrl }) {
         )
       )
     ),
-    editing && e('div', {className:"overlay", onClick:()=>setEditing(false)},
-      e('div', {className:"modal", style:{width:440}, onClick:ev=>ev.stopPropagation()},
-        e('h3', {style:{fontSize:18,fontWeight:900,marginBottom:6}}, "Tauler docent"),
-        e('p', {style:{fontSize:13,color:"#666",marginBottom:16}}, "URL del tauler de ", e('strong',null,course.title)),
-        e('input', {autoFocus:true, value:draftUrl, onChange:ev=>setDraftUrl(ev.target.value), placeholder:"https://...",
-          style:{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #e2e8f0",fontSize:14,outline:"none",marginBottom:16}}),
-        e('div', {style:{display:"flex",gap:10,justifyContent:"flex-end"}},
-          e('button', {onClick:()=>setEditing(false), style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}, "Cancel·lar"),
-          e('button', {onClick:()=>{onUpdateUrl(course.id,draftUrl);setEditing(false);}, style:{padding:"9px 18px",borderRadius:10,border:"none",background:"#7c3aed",color:"white",fontSize:14,fontWeight:800,cursor:"pointer"}}, "Desar")
-        )
-      )
-    )
+    showEdit && e(EditCourseModal, {course, onSave:handleSave, onDelete:handleDelete, onClose:()=>setShowEdit(false)})
   );
 }
 
@@ -368,6 +441,31 @@ function App() {
   function adminOut(){sessionStorage.removeItem("wda_admin");setIsAdmin(false);}
 
   function handleUrl(id,url){saveTeacherUrl(id,url);setCourses(p=>p.map(c=>c.id===id?Object.assign({},c,{teacherUrl:url}):c));}
+
+  function handleEditCourse(id, fields) {
+    // persist: initial courses go to wda_edits, extras update in wda_extras
+    const isExtra = loadExtras().some(c=>c.id===id);
+    if(isExtra) {
+      const ex = loadExtras().map(c=>c.id===id?Object.assign({},c,fields):c);
+      saveExtras(ex);
+    } else {
+      saveCourseEdits(id, fields);
+    }
+    if(fields.teacherUrl !== undefined) saveTeacherUrl(id, fields.teacherUrl);
+    setCourses(p=>p.map(c=>c.id===id?Object.assign({},c,fields):c));
+  }
+
+  function handleDeleteCourse(id) {
+    const isExtra = loadExtras().some(c=>c.id===id);
+    if(isExtra) {
+      const ex = loadExtras().filter(c=>c.id!==id);
+      saveExtras(ex);
+    } else {
+      saveDeletedCourse(id);
+    }
+    setCourses(p=>p.filter(c=>c.id!==id));
+  }
+
   function handleAdd(item){
     if(item.type==="curs"){const ex=[...loadExtras(),item.data];saveExtras(ex);setCourses(p=>[...p,item.data]);}
     else{const nr=[...resources,item.data];saveResources(nr);setResources(nr);}
@@ -481,7 +579,7 @@ function App() {
                 e('div',{style:{flex:1,height:1.5,background:"#e5e7eb"}})
               ),
               e('div',{className:"grid"},
-                gcs.map(c=>e(CourseCard,{key:c.id,course:c,radius:settings.cardRadius,isAdmin,onUpdateUrl:handleUrl}))
+                gcs.map(c=>e(CourseCard,{key:c.id,course:c,radius:settings.cardRadius,isAdmin,onUpdateUrl:handleUrl,onEdit:handleEditCourse,onDelete:handleDeleteCourse}))
               )
             )
           )
