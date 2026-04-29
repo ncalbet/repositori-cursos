@@ -61,19 +61,47 @@ function loadSettings() {
 function saveSettings(s) { try { localStorage.setItem("wda_settings",JSON.stringify(s)); } catch(err){} }
 
 // ── GitHub Sync ───────────────────────────────────────────────────────
+// Public config (repo+file, no token) — stored separately so any browser can read
+const WDA_PUBLIC_REPO = /*WDA_REPO_BEGIN*/"ncalbet/repositori-cursos"/*WDA_REPO_END*/;
+const WDA_PUBLIC_FILE = /*WDA_FILE_BEGIN*/"wda-data.json"/*WDA_FILE_END*/;
+
 function getGHConfig() {
-  try { return JSON.parse(localStorage.getItem("wda_gh")||"null")||{token:"",repo:"",file:"wda-data.json",sha:""}; }
-  catch(err){ return {token:"",repo:"",file:"wda-data.json",sha:""}; }
+  try {
+    const saved = JSON.parse(localStorage.getItem("wda_gh")||"null")||{token:"",repo:"",file:"wda-data.json",sha:""};
+    // Always use public config as fallback for repo/file so any browser can load data
+    if (!saved.repo) saved.repo = WDA_PUBLIC_REPO;
+    if (!saved.file) saved.file = WDA_PUBLIC_FILE;
+    return saved;
+  }
+  catch(err){ return {token:"",repo:WDA_PUBLIC_REPO,file:WDA_PUBLIC_FILE,sha:""}; }
 }
 function saveGHConfig(cfg) { try { localStorage.setItem("wda_gh",JSON.stringify(cfg)); } catch(err){} }
 
-async function ghRead(cfg) {
+async function ghReadPublic(cfg) {
+  // Read via raw URL — no token needed, works on any browser
+  const [owner,repo] = cfg.repo.split("/");
+  const branch = cfg.branch || "main";
+  const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${cfg.file}?t=${Date.now()}`;
+  const r = await fetch(url);
+  if (r.status===404) return null;
+  if (!r.ok) throw new Error("GitHub raw error: "+r.status);
+  return {content: await r.json(), sha: null};
+}
+
+async function ghReadWithToken(cfg) {
+  // Read via API with token — needed to get SHA for subsequent writes
   const [owner,repo] = cfg.repo.split("/");
   const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${cfg.file}`,{headers:{Authorization:`token ${cfg.token}`,Accept:"application/vnd.github.v3+json"}});
   if (r.status===404) return null;
   if (!r.ok) throw new Error("GitHub error: "+r.status);
   const data = await r.json();
   return {content:JSON.parse(atob(data.content.replace(/\n/g,""))),sha:data.sha};
+}
+
+async function ghRead(cfg) {
+  // If we have a token, use the API (to get SHA); otherwise use public URL
+  if (cfg.token) return ghReadWithToken(cfg);
+  return ghReadPublic(cfg);
 }
 async function ghWrite(cfg,data,message) {
   const [owner,repo] = cfg.repo.split("/");
@@ -595,8 +623,9 @@ function App() {
   const shaRef = useRef(getGHConfig().sha||"");
 
   const local = loadLocal();
-  const [courses,setCourses]     = useState(local.courses);
-  const [resources,setResources] = useState(local.resources);
+  const [courses,setCourses]       = useState(local.courses);
+  const [resources,setResources]   = useState(local.resources);
+  const [initialLoaded,setInitialLoaded] = useState(false);
   const [viewMode,setViewMode]   = useState(()=>localStorage.getItem("wda_view")||"grid"); // "grid"|"list"
 
   const [search,setSearch]       = useState("");
@@ -614,6 +643,23 @@ function App() {
   // drag state
   const [dragging,setDragging]   = useState(null);
   const dragOver = useRef(null);
+
+  // ── Load publicly on startup (no token needed) ────────────────────
+  useEffect(()=>{
+    const cfg = getGHConfig();
+    if (!cfg.repo || initialLoaded) return;
+    setInitialLoaded(true);
+    setSync("syncing");
+    ghReadPublic(cfg)
+      .then(result=>{
+        if (result&&result.content) {
+          if (result.content.courses)   { setCourses(result.content.courses);   saveLocal(result.content.courses, result.content.resources||[]); }
+          if (result.content.resources) setResources(result.content.resources);
+        }
+        setSync(cfg.token?"idle":"nogh");
+      })
+      .catch(()=>setSync(cfg.token?"idle":"nogh"));
+  },[]);
 
   // ── Sync ──────────────────────────────────────────────────────────
   async function loadFromGitHub(cfg) {
