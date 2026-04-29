@@ -54,18 +54,6 @@
       "teacherUrl": "",
       "imgSrc": "thumbnails/catala-c1.png",
       "desc": "Preparació per a l'acreditació C1 de català: comprensió lectora i expressió escrita."
-    },
-    {
-      "id": 6,
-      "title": "Phrasal Verbs",
-      "subject": "Anglès",
-      "level": "2n Batx.",
-      "status": "actiu",
-      "url": "https://ncalbet.github.io/phrasal-verbs/phrasal-verbs-unit7.html",
-      "teacherUrl": "",
-      "imgSrc": "thumbnails/phrasal-verbs.png",
-      "desc": "Recull interactiu dels phrasal verbs més freqüents en anglès.",
-      "tipus": "curs"
     }
   ],
   "resources": [
@@ -81,7 +69,20 @@
       "desc": "Teoria i pràctica de les oracions condicionals en anglès (0, 1st, 2nd, 3rd).",
       "tipus": "recurs",
       "resourceType": "web"
+    },
+    {
+      "id": 6,
+      "title": "Phrasal Verbs",
+      "subject": "Anglès",
+      "level": "2n Batx.",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/phrasal-verbs/phrasal-verbs-unit7.html",
+      "teacherUrl": "",
+      "imgSrc": "thumbnails/phrasal-verbs.png",
+      "desc": "Recull interactiu dels phrasal verbs més freqüents en anglès.",
+      "tipus": "recurs",
+      "resourceType": "web"
     }
   ],
-  "updatedAt": "2026-04-29T15:21:58.738Z"
+  "updatedAt": "2026-04-29T15:22:11.439Z"
 }
