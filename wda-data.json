@@ -3,86 +3,97 @@
     {
       "id": 1,
       "title": "UK Guide Agency",
-      "subject": "Anglès",
+      "subject": "AnglÃ¨s",
       "level": "4t ESO",
       "status": "actiu",
       "url": "https://ncalbet.github.io/uk-guide-agency/uk-guide-v4-FINAL.html",
       "teacherUrl": "",
       "imgSrc": "thumbnails/uk-guide.png",
-      "desc": "Activitat immersiva on els alumnes actuen com a guies turístics del Regne Unit."
+      "desc": "Activitat immersiva on els alumnes actuen com a guies turÃ­stics del Regne Unit."
     },
     {
       "id": 2,
       "title": "Manhattan Affair",
-      "subject": "Anglès",
+      "subject": "AnglÃ¨s",
       "level": "Batxillerat",
       "status": "actiu",
       "url": "https://ncalbet.github.io/Manhattan-affair/manhattan_affair_v2.html",
       "teacherUrl": "",
       "imgSrc": "thumbnails/manhattan.png",
-      "desc": "Webquest sobre el projecte Manhattan: context històric, personatges clau i el debat ètic entorn de la bomba atòmica."
+      "desc": "Webquest sobre el projecte Manhattan: context histÃ²ric, personatges clau i el debat Ã¨tic entorn de la bomba atÃ²mica."
     },
     {
       "id": 3,
-      "title": "Crisi Energètica",
-      "subject": "Ciències Socials",
+      "title": "Crisi EnergÃ¨tica",
+      "subject": "CiÃ¨ncies Socials",
       "level": "4t ESO",
       "status": "actiu",
       "url": "https://ncalbet.github.io/crisi-energetica/crisi_energetica_FINAL.html",
       "teacherUrl": "https://ncalbet.github.io/crisi-energetica/tauler_docent.html",
       "imgSrc": "thumbnails/crisi-energetica.png",
-      "desc": "Anàlisi de la crisi energètica global: causes, conseqüències i alternatives renovables."
+      "desc": "AnÃ lisi de la crisi energÃ¨tica global: causes, conseqÃ¼Ã¨ncies i alternatives renovables."
     },
     {
       "id": 4,
-      "title": "Introducció a la Geopolítica",
-      "subject": "Ciències Socials",
+      "title": "IntroducciÃ³ a la GeopolÃ­tica",
+      "subject": "CiÃ¨ncies Socials",
       "level": "Batxillerat",
       "status": "actiu",
       "url": "https://ncalbet.github.io/geopolitica-mon-actual/",
       "teacherUrl": "https://ncalbet.github.io/geopolitica-mon-actual/?prof",
       "imgSrc": "thumbnails/geopolitica.png",
-      "desc": "Conceptes fonamentals de geopolítica: estats, fronteres, conflictes i organismes internacionals."
+      "desc": "Conceptes fonamentals de geopolÃ­tica: estats, fronteres, conflictes i organismes internacionals."
     },
     {
       "id": 5,
-      "title": "Català C1",
-      "subject": "Català",
+      "title": "CatalÃ  C1",
+      "subject": "CatalÃ ",
       "level": "C1",
       "status": "actiu",
       "url": "https://ncalbet.github.io/catala-c1-trainer/",
       "teacherUrl": "",
       "imgSrc": "thumbnails/catala-c1.png",
-      "desc": "Preparació per a l'acreditació C1 de català: comprensió lectora i expressió escrita."
+      "desc": "PreparaciÃ³ per a l'acreditaciÃ³ C1 de catalÃ : comprensiÃ³ lectora i expressiÃ³ escrita."
+    },
+    {
+      "id": 1777552591272,
+      "title": "Dret Internacional Public",
+      "desc": "",
+      "subject": "Ciències Socials",
+      "level": "Btx",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/dret-internacional-public/",
+      "teacherUrl": "",
+      "imgSrc": ""
     }
   ],
   "resources": [
     {
       "id": 7,
       "title": "English Conditionals",
-      "subject": "Anglès",
+      "subject": "AnglÃ¨s",
       "level": "3r ESO",
       "status": "actiu",
       "url": "https://ncalbet.github.io/english-conditionals/conditionals-presentation.html",
       "teacherUrl": "",
       "imgSrc": "thumbnails/conditionals.png",
-      "desc": "Teoria i pràctica de les oracions condicionals en anglès (0, 1st, 2nd, 3rd).",
+      "desc": "Teoria i prÃ ctica de les oracions condicionals en anglÃ¨s (0, 1st, 2nd, 3rd).",
       "tipus": "recurs",
       "resourceType": "web"
     },
     {
       "id": 6,
       "title": "Phrasal Verbs",
-      "subject": "Anglès",
+      "subject": "AnglÃ¨s",
       "level": "2n Batx.",
       "status": "actiu",
       "url": "https://ncalbet.github.io/phrasal-verbs/phrasal-verbs-unit7.html",
       "teacherUrl": "",
       "imgSrc": "thumbnails/phrasal-verbs.png",
-      "desc": "Recull interactiu dels phrasal verbs més freqüents en anglès.",
+      "desc": "Recull interactiu dels phrasal verbs mÃ©s freqÃ¼ents en anglÃ¨s.",
       "tipus": "recurs",
       "resourceType": "web"
     }
   ],
-  "updatedAt": "2026-04-29T15:22:11.439Z"
+  "updatedAt": "2026-04-30T12:36:31.273Z"
 }
