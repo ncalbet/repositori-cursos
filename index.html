@@ -28,28 +28,28 @@ const { useState, useMemo, useEffect, useRef } = React;
 
 // ── Constants ─────────────────────────────────────────────────────────
 const SUBJ_COLORS = {
-  "Anglès":"#3b82f6","Català":"#ef4444","Història":"#f59e0b",
-  "Ciències Socials":"#8b5cf6","Ciències":"#10b981","Matemàtiques":"#ec4899","Altres":"#6b7280"
+  "Angles":"#3b82f6","Catala":"#ef4444","Historia":"#f59e0b",
+  "Ciencies Socials":"#8b5cf6","Ciencies":"#10b981","Matematiques":"#ec4899","Altres":"#6b7280"
 };
 const ALL_SUBJ = Object.keys(SUBJ_COLORS);
 const TYPE_MAP = {
   web:{label:"Web interactiva",icon:"🌐"},genially:{label:"Genially",icon:"✨"},
-  pptx:{label:"Presentació",icon:"📊"},doc:{label:"Document",icon:"📄"},
-  video:{label:"Vídeo",icon:"▶"},altra:{label:"Altra",icon:"📎"},
+  pptx:{label:"Presentacio",icon:"📊"},doc:{label:"Document",icon:"📄"},
+  video:{label:"Video",icon:"▶"},altra:{label:"Altra",icon:"📎"},
 };
 const STATUS_MAP = {
   actiu:{label:"Actiu",bg:"#dcfce7",col:"#15803d"},
-  construccio:{label:"En construcció",bg:"#fef9c3",col:"#854d0e"},
+  construccio:{label:"En construccio",bg:"#fef9c3",col:"#854d0e"},
   arxivat:{label:"Arxivat",bg:"#f1f5f9",col:"#475569"},
 };
 const INITIAL_COURSES = [
-  {id:1,title:"UK Guide Agency",subject:"Anglès",level:"4t ESO",status:"actiu",url:"https://ncalbet.github.io/uk-guide-agency/uk-guide-v4-FINAL.html",teacherUrl:"",imgSrc:"thumbnails/uk-guide.png",desc:"Activitat immersiva on els alumnes actuen com a guies turístics del Regne Unit."},
-  {id:2,title:"Manhattan Affair",subject:"Anglès",level:"Batxillerat",status:"actiu",url:"https://ncalbet.github.io/Manhattan-affair/manhattan_affair_v2.html",teacherUrl:"",imgSrc:"thumbnails/manhattan.png",desc:"Webquest sobre el projecte Manhattan: context històric, personatges clau i el debat ètic entorn de la bomba atòmica."},
-  {id:3,title:"Crisi Energètica",subject:"Ciències Socials",level:"4t ESO",status:"actiu",url:"https://ncalbet.github.io/crisi-energetica/crisi_energetica_FINAL.html",teacherUrl:"https://ncalbet.github.io/crisi-energetica/tauler_docent.html",imgSrc:"thumbnails/crisi-energetica.png",desc:"Anàlisi de la crisi energètica global: causes, conseqüències i alternatives renovables."},
-  {id:4,title:"Introducció a la Geopolítica",subject:"Ciències Socials",level:"Batxillerat",status:"actiu",url:"https://ncalbet.github.io/geopolitica-mon-actual/",teacherUrl:"https://ncalbet.github.io/geopolitica-mon-actual/?prof",imgSrc:"thumbnails/geopolitica.png",desc:"Conceptes fonamentals de geopolítica: estats, fronteres, conflictes i organismes internacionals."},
-  {id:5,title:"Català C1",subject:"Català",level:"C1",status:"actiu",url:"https://ncalbet.github.io/catala-c1-trainer/",teacherUrl:"",imgSrc:"thumbnails/catala-c1.png",desc:"Preparació per a l'acreditació C1 de català: comprensió lectora i expressió escrita."},
-  {id:6,title:"Phrasal Verbs",subject:"Anglès",level:"2n Batx.",status:"construccio",url:"https://ncalbet.github.io/phrasal-verbs/phrasal-verbs-unit7.html",teacherUrl:"",imgSrc:"thumbnails/phrasal-verbs.png",desc:"Recull interactiu dels phrasal verbs més freqüents en anglès."},
-  {id:7,title:"English Conditionals",subject:"Anglès",level:"3r ESO",status:"actiu",url:"https://ncalbet.github.io/english-conditionals/conditionals-presentation.html",teacherUrl:"",imgSrc:"thumbnails/conditionals.png",desc:"Teoria i pràctica de les oracions condicionals en anglès (0, 1st, 2nd, 3rd)."},
+  {id:1,title:"UK Guide Agency",subject:"Angles",level:"4t ESO",status:"actiu",url:"https://ncalbet.github.io/uk-guide-agency/uk-guide-v4-FINAL.html",teacherUrl:"",imgSrc:"thumbnails/uk-guide.png",desc:"Activitat immersiva on els alumnes actuen com a guies turistics del Regne Unit."},
+  {id:2,title:"Manhattan Affair",subject:"Angles",level:"Batxillerat",status:"actiu",url:"https://ncalbet.github.io/Manhattan-affair/manhattan_affair_v2.html",teacherUrl:"",imgSrc:"thumbnails/manhattan.png",desc:"Webquest sobre el projecte Manhattan: context historic, personatges clau i el debat etic entorn de la bomba atomica."},
+  {id:3,title:"Crisi Energetica",subject:"Ciencies Socials",level:"4t ESO",status:"actiu",url:"https://ncalbet.github.io/crisi-energetica/crisi_energetica_FINAL.html",teacherUrl:"https://ncalbet.github.io/crisi-energetica/tauler_docent.html",imgSrc:"thumbnails/crisi-energetica.png",desc:"Analisi de la crisi energetica global: causes, consequencies i alternatives renovables."},
+  {id:4,title:"Introduccio a la Geopolitica",subject:"Ciencies Socials",level:"Batxillerat",status:"actiu",url:"https://ncalbet.github.io/geopolitica-mon-actual/",teacherUrl:"https://ncalbet.github.io/geopolitica-mon-actual/?prof",imgSrc:"thumbnails/geopolitica.png",desc:"Conceptes fonamentals de geopolitica: estats, fronteres, conflictes i organismes internacionals."},
+  {id:5,title:"Catala C1",subject:"Catala",level:"C1",status:"actiu",url:"https://ncalbet.github.io/catala-c1-trainer/",teacherUrl:"",imgSrc:"thumbnails/catala-c1.png",desc:"Preparacio per a l'acreditacio C1 de catala: comprensio lectora i expressio escrita."},
+  {id:6,title:"Phrasal Verbs",subject:"Angles",level:"2n Batx.",status:"construccio",url:"https://ncalbet.github.io/phrasal-verbs/phrasal-verbs-unit7.html",teacherUrl:"",imgSrc:"thumbnails/phrasal-verbs.png",desc:"Recull interactiu dels phrasal verbs mes frequents en angles."},
+  {id:7,title:"English Conditionals",subject:"Angles",level:"3r ESO",status:"actiu",url:"https://ncalbet.github.io/english-conditionals/conditionals-presentation.html",teacherUrl:"",imgSrc:"thumbnails/conditionals.png",desc:"Teoria i practica de les oracions condicionals en angles (0, 1st, 2nd, 3rd)."},
 ];
 const DEFAULT_SETTINGS = {schoolName:"Web d'Aprenentatge",teacherName:"ncalbet",adminPin:"1234",githubUser:"ncalbet",cardRadius:16,showGrouping:true};
 
@@ -164,7 +164,7 @@ function SettingsModal({settings,onSave,onClose}) {
   return e('div',{className:"overlay",onClick:onClose},
     e('div',{className:"modal",style:{width:460},onClick:ev=>ev.stopPropagation()},
       e('div',{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22}},
-        e('h3',{style:{fontSize:19,fontWeight:900}},"Configuració general"),
+        e('h3',{style:{fontSize:19,fontWeight:900}},"Configuracio general"),
         e('button',{onClick:onClose,style:{border:"none",background:"none",fontSize:22,cursor:"pointer",color:"#aaa"}},"×")
       ),
       e('div',{style:{display:"flex",flexDirection:"column",gap:16}},
@@ -182,14 +182,14 @@ function SettingsModal({settings,onSave,onClose}) {
           e('div',null,
             e('label',{style:LBL},"Agrupar per assignatura"),
             e('div',{style:{display:"flex",borderRadius:8,overflow:"hidden",border:"1.5px solid #e2e8f0"}},
-              e('button',{onClick:()=>setGrouping(true),style:{flex:1,padding:"8px 0",border:"none",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",background:showGrouping?"#1a1a2e":"white",color:showGrouping?"white":"#888"}},"Sí"),
+              e('button',{onClick:()=>setGrouping(true),style:{flex:1,padding:"8px 0",border:"none",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",background:showGrouping?"#1a1a2e":"white",color:showGrouping?"white":"#888"}},"Si"),
               e('button',{onClick:()=>setGrouping(false),style:{flex:1,padding:"8px 0",border:"none",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit",background:!showGrouping?"#1a1a2e":"white",color:!showGrouping?"white":"#888"}},"No")
             )
           )
         )
       ),
       e('div',{style:{display:"flex",gap:8,justifyContent:"flex-end",marginTop:22}},
-        e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancel·lar"),
+        e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancelar"),
         e('button',{onClick:()=>onSave({...settings,schoolName,teacherName,githubUser,showGrouping,cardRadius}),style:{padding:"9px 20px",borderRadius:10,border:"none",background:"#1a1a2e",color:"white",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"Desar")
       )
     )
@@ -209,7 +209,7 @@ function GHConfigModal({cfg,onSave,onClose}) {
     try {
       const [owner,r]=repo.split("/");
       const res=await fetch(`https://api.github.com/repos/${owner}/${r}`,{headers:{Authorization:`token ${token}`}});
-      if (res.ok) setTestMsg({ok:true,msg:"Connexió correcta! Repositori accessible."});
+      if (res.ok) setTestMsg({ok:true,msg:"Connexio correcta! Repositori accessible."});
       else setTestMsg({ok:false,msg:"Error "+res.status+": comprova el token i el repo."});
     } catch(err){ setTestMsg({ok:false,msg:"Error de xarxa."}); }
     setTesting(false);
@@ -219,26 +219,26 @@ function GHConfigModal({cfg,onSave,onClose}) {
     e('div',{className:"modal",style:{width:500},onClick:ev=>ev.stopPropagation()},
       e('div',{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:20}},
         e('div',null,
-          e('h3',{style:{fontSize:19,fontWeight:900,marginBottom:3}},"Configuració GitHub"),
+          e('h3',{style:{fontSize:19,fontWeight:900,marginBottom:3}},"Configuracio GitHub"),
           e('p',{style:{fontSize:13,color:"#666"}},"Les dades es desaran directament al teu repositori")
         ),
         e('button',{onClick:onClose,style:{border:"none",background:"none",fontSize:22,cursor:"pointer",color:"#aaa"}},"×")
       ),
       e('div',{style:{background:"#fffbeb",border:"1.5px solid #fde68a",borderRadius:10,padding:"10px 14px",marginBottom:20,fontSize:12,color:"#92400e",lineHeight:1.6}},
-        "⚠️ El token es desa al navegador (localStorage). No comparteixis l'ordinador amb alumnes mentre estàs en mode admin."
+        "⚠️ El token es desa al navegador (localStorage). No comparteixis l'ordinador amb alumnes mentre estas en mode admin."
       ),
       e('div',{style:{display:"flex",flexDirection:"column",gap:14}},
         e('div',null,e('label',{style:LBL},"Personal Access Token (PAT)"),e('input',{style:INP,type:"password",value:token,onChange:ev=>setToken(ev.target.value),placeholder:"ghp_xxxxxxxxxxxxxxxxxxxx",autoFocus:true}),
-          e('p',{style:{fontSize:11,color:"#888",marginTop:4}},"Necessita permís ",e('strong',null,"repo")," (lectura + escriptura).")
+          e('p',{style:{fontSize:11,color:"#888",marginTop:4}},"Necessita permis ",e('strong',null,"repo")," (lectura + escriptura).")
         ),
         e('div',null,e('label',{style:LBL},"Repositori (owner/repo)"),e('input',{style:INP,value:repo,onChange:ev=>setRepo(ev.target.value),placeholder:"ncalbet/ncalbet.github.io"})),
         e('div',null,e('label',{style:LBL},"Nom del fitxer de dades"),e('input',{style:INP,value:file,onChange:ev=>setFile(ev.target.value),placeholder:"wda-data.json"}))
       ),
       testMsg&&e('div',{style:{marginTop:14,padding:"9px 14px",borderRadius:9,background:testMsg.ok?"#dcfce7":"#fee2e2",color:testMsg.ok?"#15803d":"#dc2626",fontSize:13,fontWeight:700}},testMsg.msg),
       e('div',{style:{display:"flex",gap:8,justifyContent:"space-between",alignItems:"center",marginTop:22}},
-        e('button',{onClick:test,disabled:!token||!repo||testing,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",opacity:(!token||!repo)?0.4:1}},testing?"Provant...":"Provar connexió"),
+        e('button',{onClick:test,disabled:!token||!repo||testing,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",opacity:(!token||!repo)?0.4:1}},testing?"Provant...":"Provar connexio"),
         e('div',{style:{display:"flex",gap:8}},
-          e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancel·lar"),
+          e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancelar"),
           e('button',{onClick:()=>onSave({token,repo,file,sha:cfg.sha}),disabled:!token||!repo,style:{padding:"9px 20px",borderRadius:10,border:"none",background:"#1a1a2e",color:"white",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit",opacity:(!token||!repo)?0.4:1}},"Desar")
         )
       )
@@ -249,7 +249,7 @@ function GHConfigModal({cfg,onSave,onClose}) {
 // ── EditItemModal ─────────────────────────────────────────────────────
 function EditItemModal({item,itemType,onSave,onDelete,onClose}) {
   const [tipus,setTipus]=useState(itemType);
-  const [subject,setSubject]=useState(item.subject||"Anglès");
+  const [subject,setSubject]=useState(item.subject||"Angles");
   const [status,setStatus]=useState(item.status||"actiu");
   const [resourceType,setRType]=useState(item.resourceType||"web");
   const [teacherUrl,setTUrl]=useState(item.teacherUrl||"");
@@ -284,8 +284,8 @@ function EditItemModal({item,itemType,onSave,onDelete,onClose}) {
             )
           )
         ),
-        e('div',null,e('label',{style:LBL},"Títol"),e('input',{style:INP,value:title,onChange:ev=>setTitle(ev.target.value)})),
-        e('div',null,e('label',{style:LBL},"Descripció"),e('textarea',{style:{...INP,resize:"vertical",minHeight:64},value:desc,onChange:ev=>setDesc(ev.target.value)})),
+        e('div',null,e('label',{style:LBL},"Titol"),e('input',{style:INP,value:title,onChange:ev=>setTitle(ev.target.value)})),
+        e('div',null,e('label',{style:LBL},"Descripcio"),e('textarea',{style:{...INP,resize:"vertical",minHeight:64},value:desc,onChange:ev=>setDesc(ev.target.value)})),
         e('div',null,e('label',{style:LBL},"URL"),e('input',{style:INP,value:url,onChange:ev=>setUrl(ev.target.value),placeholder:"https://..."})),
         // Miniatura
         e('div',null,
@@ -325,12 +325,12 @@ function EditItemModal({item,itemType,onSave,onDelete,onClose}) {
         confirmDel
           ?e('div',{style:{display:"flex",gap:8,alignItems:"center"}},
               e('span',{style:{fontSize:12,color:"#ef4444",fontWeight:700}},"Segur?"),
-              e('button',{onClick:()=>onDelete(item.id,itemType),style:{padding:"7px 14px",borderRadius:9,border:"none",background:"#ef4444",color:"white",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"Sí, eliminar"),
+              e('button',{onClick:()=>onDelete(item.id,itemType),style:{padding:"7px 14px",borderRadius:9,border:"none",background:"#ef4444",color:"white",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"Si, eliminar"),
               e('button',{onClick:()=>setConfirm(false),style:{padding:"7px 12px",borderRadius:9,border:"1.5px solid #e2e8f0",background:"white",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"No")
             )
           :e('button',{onClick:()=>setConfirm(true),style:{padding:"7px 14px",borderRadius:9,border:"1.5px solid #fca5a5",background:"#fff1f2",color:"#ef4444",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"🗑 Eliminar"),
         e('div',{style:{display:"flex",gap:8}},
-          e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancel·lar"),
+          e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancelar"),
           e('button',{onClick:handleSave,style:{padding:"9px 20px",borderRadius:10,border:"none",background:"#1a1a2e",color:"white",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"Desar")
         )
       )
@@ -377,7 +377,7 @@ function CourseCard({course,radius,isAdmin,onEdit,onDelete,dragging,onDragStart,
             style:{flex:1,padding:"9px 0",borderRadius:9,border:"1.5px solid "+col,background:hov?col:"white",color:hov?"white":col,fontSize:13,fontWeight:800,textAlign:"center",textDecoration:"none",transition:"all .18s"}},
             "Obrir curs →"
           ),
-          isAdmin&&course.teacherUrl&&e('a',{href:course.teacherUrl,target:"_blank",rel:"noopener noreferrer",
+          course.teacherUrl&&e('a',{href:course.teacherUrl,target:"_blank",rel:"noopener noreferrer",
             style:{padding:"9px 12px",borderRadius:9,border:"1.5px solid #e2e8f0",background:"#f5f3ff",color:"#7c3aed",fontSize:13,fontWeight:800,textDecoration:"none",whiteSpace:"nowrap"}},
             "📊 Docent"
           )
@@ -429,7 +429,7 @@ function CourseRow({course,radius,isAdmin,onEdit,onDelete,dragging,onDragStart,o
       ),
       // Actions
       e('div',{style:{display:"flex",gap:8,padding:"0 16px",flexShrink:0,alignItems:"center"}},
-        course.teacherUrl&&isAdmin&&e('a',{href:course.teacherUrl,target:"_blank",rel:"noopener noreferrer",
+        course.teacherUrl&&e('a',{href:course.teacherUrl,target:"_blank",rel:"noopener noreferrer",
           style:{padding:"7px 12px",borderRadius:8,border:"1.5px solid #e2e8f0",background:"#f5f3ff",color:"#7c3aed",fontSize:12,fontWeight:800,textDecoration:"none",whiteSpace:"nowrap"}},
           "📊 Docent"
         ),
@@ -494,7 +494,7 @@ function AdminLogin({onSuccess,onClose,pin:correctPin}) {
   return e('div',{className:"overlay",onClick:onClose},
     e('div',{className:"modal",style:{width:340,display:"flex",flexDirection:"column",gap:18,textAlign:"center"},onClick:ev=>ev.stopPropagation()},
       e('div',{style:{width:56,height:56,borderRadius:16,background:err?"#fee2e2":"#1a1a2e",margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,transition:"background .3s"}},err?"✕":"🔐"),
-      e('div',null,e('h2',{style:{fontSize:20,fontWeight:900}},"Accés administrador"),e('p',{style:{fontSize:13,color:"#666",marginTop:4,fontWeight:500}},"Introdueix el codi PIN per continuar")),
+      e('div',null,e('h2',{style:{fontSize:20,fontWeight:900}},"Acces administrador"),e('p',{style:{fontSize:13,color:"#666",marginTop:4,fontWeight:500}},"Introdueix el codi PIN per continuar")),
       e('input',{autoFocus:true,type:"password",inputMode:"numeric",maxLength:8,value:pin,onChange:ev=>setPin(ev.target.value),onKeyDown:ev=>ev.key==="Enter"&&check(),placeholder:"••••",style:{textAlign:"center",fontSize:24,letterSpacing:"0.3em",padding:"12px",borderRadius:12,border:err?"2px solid #f87171":"2px solid #e2e8f0",outline:"none",fontFamily:"inherit",fontWeight:700}}),
       err&&e('p',{style:{color:"#ef4444",fontSize:13,fontWeight:700,marginTop:-8}},"PIN incorrecte."),
       e('button',{onClick:check,style:{padding:"12px",borderRadius:12,border:"none",background:"#1a1a2e",color:"white",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"Entrar")
@@ -505,7 +505,7 @@ function AdminLogin({onSuccess,onClose,pin:correctPin}) {
 // ── AddModal ──────────────────────────────────────────────────────────
 function AddModal({mode,onSave,onClose}) {
   const isCourse=mode==="curs";
-  const [f,setF]=useState({title:"",desc:"",subject:"Anglès",level:"",status:"actiu",url:"",teacherUrl:"",imgSrc:"",type:"web"});
+  const [f,setF]=useState({title:"",desc:"",subject:"Angles",level:"",status:"actiu",url:"",teacherUrl:"",imgSrc:"",type:"web"});
   const set=(k,v)=>setF(p=>Object.assign({},p,{[k]:v}));
   function save(){
     if(!f.title.trim()||!f.url.trim()) return;
@@ -515,24 +515,24 @@ function AddModal({mode,onSave,onClose}) {
   return e('div',{className:"overlay",style:{padding:16},onClick:onClose},
     e('div',{className:"modal",style:{width:"100%",maxWidth:500,maxHeight:"90vh",overflowY:"auto"},onClick:ev=>ev.stopPropagation()},
       e('h3',{style:{fontSize:19,fontWeight:900,marginBottom:4}},isCourse?"Afegir nou curs":"Afegir recurs"),
-      e('p',{style:{fontSize:13,color:"#666",marginBottom:20}},isCourse?"Afegeix una nova web d'aprenentatge":"Afegeix una presentació, genially o eina"),
+      e('p',{style:{fontSize:13,color:"#666",marginBottom:20}},isCourse?"Afegeix una nova web d'aprenentatge":"Afegeix una presentacio, genially o eina"),
       e('div',{style:{display:"flex",flexDirection:"column",gap:14}},
-        e('div',null,e('label',{style:LBL},"Títol"),e('input',{style:INP,value:f.title,onChange:ev=>set("title",ev.target.value),autoFocus:true})),
-        e('div',null,e('label',{style:LBL},"Descripció"),e('textarea',{style:{...INP,resize:"vertical",minHeight:72},value:f.desc,onChange:ev=>set("desc",ev.target.value)})),
+        e('div',null,e('label',{style:LBL},"Titol"),e('input',{style:INP,value:f.title,onChange:ev=>set("title",ev.target.value),autoFocus:true})),
+        e('div',null,e('label',{style:LBL},"Descripcio"),e('textarea',{style:{...INP,resize:"vertical",minHeight:72},value:f.desc,onChange:ev=>set("desc",ev.target.value)})),
         e('div',null,e('label',{style:LBL},"URL"),e('input',{style:INP,value:f.url,onChange:ev=>set("url",ev.target.value),placeholder:"https://..."})),
         e('div',null,e('label',{style:LBL},"Miniatura (URL, opcional)"),e('input',{style:INP,value:f.imgSrc,onChange:ev=>set("imgSrc",ev.target.value),placeholder:"https://..."})),
         e('div',null,e('label',{style:LBL},"Assignatura"),e('select',{style:{...INP,cursor:"pointer"},value:f.subject,onChange:ev=>set("subject",ev.target.value)},ALL_SUBJ.map(s=>e('option',{key:s},s)))),
         isCourse&&e('div',null,e('label',{style:LBL},"Nivell"),e('input',{style:INP,value:f.level,onChange:ev=>set("level",ev.target.value),placeholder:"3r ESO, Batxillerat..."})),
         isCourse&&e('div',null,e('label',{style:LBL},"Estat"),
           e('select',{style:{...INP,cursor:"pointer"},value:f.status,onChange:ev=>set("status",ev.target.value)},
-            e('option',{value:"actiu"},"Actiu"),e('option',{value:"construccio"},"En construcció"),e('option',{value:"arxivat"},"Arxivat")
+            e('option',{value:"actiu"},"Actiu"),e('option',{value:"construccio"},"En construccio"),e('option',{value:"arxivat"},"Arxivat")
           )
         ),
         isCourse&&e('div',null,e('label',{style:LBL},"URL tauler docent (opcional)"),e('input',{style:INP,value:f.teacherUrl,onChange:ev=>set("teacherUrl",ev.target.value),placeholder:"https://..."})),
         !isCourse&&e('div',null,e('label',{style:LBL},"Tipus"),e('select',{style:{...INP,cursor:"pointer"},value:f.type,onChange:ev=>set("type",ev.target.value)},Object.entries(TYPE_MAP).map(([v,t])=>e('option',{key:v,value:v},t.icon+" "+t.label))))
       ),
       e('div',{style:{display:"flex",gap:10,justifyContent:"flex-end",marginTop:24}},
-        e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancel·lar"),
+        e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancelar"),
         e('button',{onClick:save,style:{padding:"9px 20px",borderRadius:10,border:"none",background:isCourse?"#3b82f6":"#8b5cf6",color:"white",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit",opacity:(!f.title||!f.url)?0.4:1}},"Desar")
       )
     )
@@ -549,7 +549,7 @@ function GitHubImportModal({githubUser,existingUrls,onImport,onClose}) {
       .then(data=>{setRepos(data.filter(r=>!r.fork&&!r.name.endsWith(".github.io")));setLoad(false);})
       .catch(err=>{setErr("Error: "+err);setLoad(false);});
   },[]);
-  function toggle(name,hp){setSel(s=>{const n=Object.assign({},s);if(n[name])delete n[name];else n[name]={url:hp||"https://"+githubUser+".github.io/"+name+"/",subject:"Anglès",level:""};return n;});}
+  function toggle(name,hp){setSel(s=>{const n=Object.assign({},s);if(n[name])delete n[name];else n[name]={url:hp||"https://"+githubUser+".github.io/"+name+"/",subject:"Angles",level:""};return n;});}
   function setField(name,k,v){setSel(s=>Object.assign({},s,{[name]:Object.assign({},s[name],{[k]:v})}));}
   function doImport(){
     const items=Object.entries(selected).map(([name,d],i)=>({id:Date.now()+i,title:name.replace(/-/g," ").replace(/\b\w/g,c=>c.toUpperCase()),desc:(repos&&repos.find(r=>r.name===name)||{}).description||"",subject:d.subject,level:d.level,status:"actiu",url:d.url,teacherUrl:"",imgSrc:""}));
@@ -587,7 +587,7 @@ function GitHubImportModal({githubUser,existingUrls,onImport,onClose}) {
       e('div',{style:{display:"flex",gap:10,justifyContent:"space-between",alignItems:"center",marginTop:20,paddingTop:16,borderTop:"1.5px solid #e5e7eb"}},
         e('span',{style:{fontSize:13,color:"#666",fontWeight:600}},sel+" seleccionats"),
         e('div',{style:{display:"flex",gap:8}},
-          e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancel·lar"),
+          e('button',{onClick:onClose,style:{padding:"9px 18px",borderRadius:10,border:"1.5px solid #e2e8f0",background:"white",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}},"Cancelar"),
           e('button',{onClick:doImport,disabled:!sel,style:{padding:"9px 20px",borderRadius:10,border:"none",background:"#1a1a2e",color:"white",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit",opacity:sel?1:0.4}},"Importar"+(sel?" ("+sel+")":""))
         )
       )
@@ -602,7 +602,7 @@ function LoginModal({onClose}) {
     e('div',{className:"modal",style:{width:380,display:"flex",flexDirection:"column",gap:20},onClick:ev=>ev.stopPropagation()},
       e('div',{style:{textAlign:"center"}},
         e('div',{style:{width:56,height:56,borderRadius:16,background:"#dbeafe",margin:"0 auto 12px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}},"🎓"),
-        e('h2',{style:{fontSize:22,fontWeight:900}},"Accés Alumnes"),
+        e('h2',{style:{fontSize:22,fontWeight:900}},"Acces Alumnes"),
         e('p',{style:{fontSize:13,color:"#666",marginTop:4}},"Entra amb el teu usuari per veure els teus cursos")
       ),
       e('div',{style:{display:"flex",flexDirection:"column",gap:12}},
@@ -610,7 +610,7 @@ function LoginModal({onClose}) {
         e('input',{type:"password",style:inp,placeholder:"Contrasenya",value:pass,onChange:ev=>setPass(ev.target.value)})
       ),
       e('button',{style:{padding:"12px",borderRadius:12,border:"none",background:"#3b82f6",color:"white",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"Entrar"),
-      e('p',{style:{textAlign:"center",fontSize:12,color:"#94a3b8",fontWeight:600}},"Funció pròximament disponible")
+      e('p',{style:{textAlign:"center",fontSize:12,color:"#94a3b8",fontWeight:600}},"Funcio proximament disponible")
     )
   );
 }
@@ -686,7 +686,7 @@ function App() {
     try {
       const data={courses:newCourses,resources:newResources,updatedAt:new Date().toISOString()};
       const latestCfg=Object.assign({},cfg,{sha:shaRef.current});
-      const newSha=await ghWrite(latestCfg,data,"Actualització WDA "+new Date().toLocaleString("ca"));
+      const newSha=await ghWrite(latestCfg,data,"Actualitzacio WDA "+new Date().toLocaleString("ca"));
       shaRef.current=newSha;
       saveGHConfig(Object.assign({},latestCfg,{sha:newSha}));
       setGhCfg(c=>Object.assign({},c,{sha:newSha}));
@@ -756,14 +756,14 @@ function App() {
   // ── Derived ──────────────────────────────────────────────────────
   const visible=isAdmin?courses:courses.filter(c=>c.status==="actiu");
   const uniqSubj=["Totes",...[...new Set(visible.map(c=>c.subject))]];
-  const statuses=["Tots","Actiu","En construcció","Arxivat"];
+  const statuses=["Tots","Actiu","En construccio","Arxivat"];
   const existingUrls=courses.map(c=>c.url);
 
   const filtered=useMemo(()=>visible.filter(c=>{
     const q=search.toLowerCase();
     const ms=!q||c.title.toLowerCase().includes(q)||c.subject.toLowerCase().includes(q)||(c.level||"").toLowerCase().includes(q);
     const mf=filterSubj==="Totes"||c.subject===filterSubj;
-    const mst=!isAdmin||filterSt==="Tots"||(filterSt==="Actiu"&&c.status==="actiu")||(filterSt==="En construcció"&&c.status==="construccio")||(filterSt==="Arxivat"&&c.status==="arxivat");
+    const mst=!isAdmin||filterSt==="Tots"||(filterSt==="Actiu"&&c.status==="actiu")||(filterSt==="En construccio"&&c.status==="construccio")||(filterSt==="Arxivat"&&c.status==="arxivat");
     return ms&&mf&&mst;
   }),[search,filterSubj,filterSt,visible,isAdmin]);
 
@@ -798,7 +798,7 @@ function App() {
         e('div',{style:{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}},
           isAdmin&&e(SyncBadge,{status:syncStatus}),
           isAdmin&&e('div',{style:{display:"flex",gap:6,alignItems:"center"}},
-            e('button',{onClick:()=>setShowSettings(true),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #e5e7eb",background:"white",color:"#555",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"⚙ Configuració"),
+            e('button',{onClick:()=>setShowSettings(true),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #e5e7eb",background:"white",color:"#555",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"⚙ Configuracio"),
             e('button',{onClick:()=>setShowGHConfig(true),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid "+(ghCfg.token?"#10b981":"#e5e7eb"),background:ghCfg.token?"#f0fdf4":"white",color:ghCfg.token?"#15803d":"#888",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},ghCfg.token?"⚙ GitHub":"⚙ Connectar GH"),
             e('button',{onClick:()=>setShowGithub(true),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #1a1a2e",background:"white",color:"#1a1a2e",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"⬇ Importar"),
             e('button',{onClick:()=>setAddModal("curs"),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #3b82f6",background:"white",color:"#3b82f6",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"+ Curs"),
@@ -830,7 +830,7 @@ function App() {
         ),
         e('div',{style:{position:"relative",maxWidth:480}},
           e('span',{style:{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",fontSize:18,opacity:0.5}},"🔍"),
-          e('input',{value:search,onChange:ev=>setSearch(ev.target.value),placeholder:"Cerca per títol, matèria o nivell...",
+          e('input',{value:search,onChange:ev=>setSearch(ev.target.value),placeholder:"Cerca per titol, materia o nivell...",
             style:{width:"100%",padding:"12px 16px 12px 44px",borderRadius:12,border:"none",fontSize:15,fontFamily:"inherit",fontWeight:600,background:"rgba(255,255,255,0.95)",boxShadow:"0 4px 20px rgba(0,0,0,0.15)",outline:"none"}})
         )
       )
