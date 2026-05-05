@@ -77,6 +77,36 @@ function getGHConfig() {
 }
 function saveGHConfig(cfg) { try { localStorage.setItem("wda_gh",JSON.stringify(cfg)); } catch(err){} }
 
+function fixEncoding(str) {
+  if (typeof str !== "string") return str;
+  try {
+    // Fix double-encoded UTF-8 (e.g. "AnglÃ¨s" → "Angles")
+    const fixed = decodeURIComponent(escape(str));
+    // Now remove accents
+    return fixed.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"");
+  } catch(e) {
+    // If escape fails (already correct encoding), just remove accents
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"");
+  }
+}
+function fixItem(item) {
+  if (!item || typeof item !== "object") return item;
+  const out = {};
+  for (const k of Object.keys(item)) {
+    const v = item[k];
+    out[k] = typeof v === "string" ? fixEncoding(v) : v;
+  }
+  return out;
+}
+function fixData(content) {
+  if (!content) return content;
+  return {
+    ...content,
+    courses:   (content.courses   || []).map(fixItem),
+    resources: (content.resources || []).map(fixItem),
+  };
+}
+
 async function ghReadPublic(cfg) {
   // Read via raw URL — no token needed, works on any browser
   const [owner,repo] = cfg.repo.split("/");
@@ -114,7 +144,7 @@ async function ghWrite(cfg,data,message) {
 
 // ── Local cache ───────────────────────────────────────────────────────
 function loadLocal() {
-  try { const d=JSON.parse(localStorage.getItem("wda_local")||"null"); if(d) return d; }
+  try { const d=JSON.parse(localStorage.getItem("wda_local")||"null"); if(d) return fixData(d); }
   catch(err){}
   return {courses:INITIAL_COURSES,resources:[]};
 }
@@ -653,8 +683,9 @@ function App() {
     ghReadPublic(cfg)
       .then(result=>{
         if (result&&result.content) {
-          if (result.content.courses)   { setCourses(result.content.courses);   saveLocal(result.content.courses, result.content.resources||[]); }
-          if (result.content.resources) setResources(result.content.resources);
+          const fixed = fixData(result.content);
+          if (fixed.courses)   { setCourses(fixed.courses);   saveLocal(fixed.courses, fixed.resources||[]); }
+          if (fixed.resources) setResources(fixed.resources);
         }
         setSync(cfg.token?"idle":"nogh");
       })
@@ -672,8 +703,9 @@ function App() {
         shaRef.current=sha;
         saveGHConfig(Object.assign({},cfg,{sha}));
         setGhCfg(c=>Object.assign({},c,{sha}));
-        if (content.courses)   {setCourses(content.courses);saveLocal(content.courses,content.resources||[]);}
-        if (content.resources) setResources(content.resources);
+        const fixed2 = fixData(content);
+        if (fixed2.courses)   {setCourses(fixed2.courses);saveLocal(fixed2.courses,fixed2.resources||[]);}
+        if (fixed2.resources) setResources(fixed2.resources);
       }
       setSync("idle");
     } catch(err){console.error(err);setSync("error");}
