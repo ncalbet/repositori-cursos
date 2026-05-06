@@ -23,17 +23,6 @@
       "desc": "Webquest sobre el projecte Manhattan: context histAAAA²ric, personatges clau i el debat AAAA¨tic entorn de la bomba atAAAA²mica."
     },
     {
-      "id": 4,
-      "title": "IntroducciAAAA³ a la GeopolAAAA­tica",
-      "subject": "CiAAAA¨ncies Socials",
-      "level": "Batxillerat",
-      "status": "actiu",
-      "url": "https://ncalbet.github.io/geopolitica-mon-actual/",
-      "teacherUrl": "https://ncalbet.github.io/geopolitica-mon-actual/?prof",
-      "imgSrc": "thumbnails/geopolitica.png",
-      "desc": "Conceptes fonamentals de geopolAAAA­tica: estats, fronteres, conflictes i organismes internacionals."
-    },
-    {
       "id": 3,
       "title": "Crisi EnergAAAA¨tica",
       "subject": "CiAAAA¨ncies Socials",
@@ -43,6 +32,17 @@
       "teacherUrl": "https://ncalbet.github.io/crisi-energetica/tauler_docent.html",
       "imgSrc": "thumbnails/crisi-energetica.png",
       "desc": "AnAAAA lisi de la crisi energAAAA¨tica global: causes, conseqAAAA¼AAAA¨ncies i alternatives renovables."
+    },
+    {
+      "id": 4,
+      "title": "IntroducciAAAA³ a la GeopolAAAA­tica",
+      "subject": "CiAAAA¨ncies Socials",
+      "level": "Batxillerat",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/geopolitica-mon-actual/",
+      "teacherUrl": "https://ncalbet.github.io/geopolitica-mon-actual/?prof",
+      "imgSrc": "thumbnails/geopolitica.png",
+      "desc": "Conceptes fonamentals de geopolAAAA­tica: estats, fronteres, conflictes i organismes internacionals."
     },
     {
       "id": 1777552591272,
@@ -96,5 +96,5 @@
       "resourceType": "web"
     }
   ],
-  "updatedAt": "2026-05-06T09:32:14.344Z"
+  "updatedAt": "2026-05-06T09:32:30.576Z"
 }
