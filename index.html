@@ -77,17 +77,36 @@ function getGHConfig() {
 }
 function saveGHConfig(cfg) { try { localStorage.setItem("wda_gh",JSON.stringify(cfg)); } catch(err){} }
 
+function stripAccents(s){
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"").replace(/Ââ€¢/g,"");
+}
 function fixEncoding(str) {
   if (typeof str !== "string") return str;
-  try {
-    // Fix double-encoded UTF-8 (e.g. "AnglÃ¨s" → "Angles")
-    const fixed = decodeURIComponent(escape(str));
-    // Now remove accents
-    return fixed.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"");
-  } catch(e) {
-    // If escape fails (already correct encoding), just remove accents
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"");
+  let s = str;
+  // Repeatedly try to fix double/triple-encoded UTF-8 (e.g. "AnglÃ¨s", "AnglÃÂ¨s", "AnglÃÂÃÂ¨s")
+  for (let i = 0; i < 5; i++) {
+    if (!/[ÃÂâ]/.test(s)) break;
+    try {
+      const fixed = decodeURIComponent(escape(s));
+      if (fixed === s) break;
+      s = fixed;
+    } catch(e) { break; }
   }
+  // Manual fallback for residual mojibake patterns
+  const map = {};
+  map['Ã'+'¨']='e'; map['Ã'+'©']='e'; map['Ã'+'«']='e'; map['Ã'+'ª']='e';
+  map['Ã'+' ']='a'; map['Ã'+'¡']='a'; map['Ã'+'¢']='a'; map['Ã'+'¤']='a';
+  map['Ã'+'²']='o'; map['Ã'+'³']='o'; map['Ã'+'´']='o'; map['Ã'+'¶']='o';
+  map['Ã'+'¬']='i'; map['Ã'+'­']='i'; map['Ã'+'®']='i'; map['Ã'+'¯']='i';
+  map['Ã'+'¹']='u'; map['Ã'+'º']='u'; map['Ã'+'»']='u'; map['Ã'+'¼']='u';
+  map['Ã'+'§']='c'; map['Ã'+'±']='n';
+  map['·']='';
+  for (const k of Object.keys(map)) {
+    s = s.split(k).join(map[k]);
+  }
+  // Remove any leftover stray Ã/Â characters
+  s = s.replace(/[ÃÂ]/g,'');
+  return stripAccents(s);
 }
 function fixItem(item) {
   if (!item || typeof item !== "object") return item;
@@ -735,6 +754,14 @@ function App() {
 
   function adminIn(){sessionStorage.setItem("wda_admin","1");setIsAdmin(true);setShowAdminLogin(false);loadFromGitHub(ghCfg);}
   function adminOut(){sessionStorage.removeItem("wda_admin");setIsAdmin(false);}
+  function resetAndSync(){
+    if(!confirm("Aixo netejara tots els accents i simbols estranys de les dades, i ho desara a GitHub. Continuar?")) return;
+    const fc = courses.map(fixItem);
+    const fr = resources.map(fixItem);
+    setCourses(fc); setResources(fr);
+    saveLocal(fc,fr);
+    syncGitHub(fc,fr);
+  }
 
   function saveGHCfg(cfg){saveGHConfig(cfg);setGhCfg(cfg);shaRef.current=cfg.sha||"";setShowGHConfig(false);setSync(cfg.token?"idle":"nogh");if(cfg.token&&isAdmin)loadFromGitHub(cfg);}
   function handleSaveSettings(s){saveSettings(s);setSettings(s);setShowSettings(false);}
@@ -832,6 +859,7 @@ function App() {
           isAdmin&&e('div',{style:{display:"flex",gap:6,alignItems:"center"}},
             e('button',{onClick:()=>setShowSettings(true),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #e5e7eb",background:"white",color:"#555",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"⚙ Configuracio"),
             e('button',{onClick:()=>setShowGHConfig(true),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid "+(ghCfg.token?"#10b981":"#e5e7eb"),background:ghCfg.token?"#f0fdf4":"white",color:ghCfg.token?"#15803d":"#888",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},ghCfg.token?"⚙ GitHub":"⚙ Connectar GH"),
+            e('button',{onClick:resetAndSync,title:"Netejar accents i simbols estranys",style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #f59e0b",background:"#fffbeb",color:"#92400e",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"🧹 Netejar accents"),
             e('button',{onClick:()=>setShowGithub(true),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #1a1a2e",background:"white",color:"#1a1a2e",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"⬇ Importar"),
             e('button',{onClick:()=>setAddModal("curs"),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #3b82f6",background:"white",color:"#3b82f6",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"+ Curs"),
             e('button',{onClick:()=>setAddModal("recurs"),style:{padding:"7px 13px",borderRadius:9,border:"1.5px solid #8b5cf6",background:"white",color:"#8b5cf6",fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}},"+ Recurs"),
