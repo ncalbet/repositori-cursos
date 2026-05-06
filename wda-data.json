@@ -34,6 +34,17 @@
       "desc": "Conceptes fonamentals de geopolAAAA­tica: estats, fronteres, conflictes i organismes internacionals."
     },
     {
+      "id": 3,
+      "title": "Crisi EnergAAAA¨tica",
+      "subject": "CiAAAA¨ncies Socials",
+      "level": "4t ESO",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/crisi-energetica/crisi_energetica_FINAL.html",
+      "teacherUrl": "https://ncalbet.github.io/crisi-energetica/tauler_docent.html",
+      "imgSrc": "thumbnails/crisi-energetica.png",
+      "desc": "AnAAAA lisi de la crisi energAAAA¨tica global: causes, conseqAAAA¼AAAA¨ncies i alternatives renovables."
+    },
+    {
       "id": 1777552591272,
       "title": "Dret Internacional Public",
       "desc": "",
@@ -44,17 +55,6 @@
       "teacherUrl": "https://ncalbet.github.io/dret-internacional-public/index.html?prof",
       "imgSrc": "",
       "tipus": "curs"
-    },
-    {
-      "id": 3,
-      "title": "Crisi EnergAAAA¨tica",
-      "subject": "CiAAAA¨ncies Socials",
-      "level": "4t ESO",
-      "status": "actiu",
-      "url": "https://ncalbet.github.io/crisi-energetica/crisi_energetica_FINAL.html",
-      "teacherUrl": "https://ncalbet.github.io/crisi-energetica/tauler_docent.html",
-      "imgSrc": "thumbnails/crisi-energetica.png",
-      "desc": "AnAAAA lisi de la crisi energAAAA¨tica global: causes, conseqAAAA¼AAAA¨ncies i alternatives renovables."
     },
     {
       "id": 5,
@@ -96,5 +96,5 @@
       "resourceType": "web"
     }
   ],
-  "updatedAt": "2026-05-06T09:32:07.118Z"
+  "updatedAt": "2026-05-06T09:32:08.648Z"
 }
