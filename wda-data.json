@@ -23,17 +23,6 @@
       "desc": "Webquest sobre el projecte Manhattan: context histAAAA²ric, personatges clau i el debat AAAA¨tic entorn de la bomba atAAAA²mica."
     },
     {
-      "id": 3,
-      "title": "Crisi EnergAAAA¨tica",
-      "subject": "CiAAAA¨ncies Socials",
-      "level": "4t ESO",
-      "status": "actiu",
-      "url": "https://ncalbet.github.io/crisi-energetica/crisi_energetica_FINAL.html",
-      "teacherUrl": "https://ncalbet.github.io/crisi-energetica/tauler_docent.html",
-      "imgSrc": "thumbnails/crisi-energetica.png",
-      "desc": "AnAAAA lisi de la crisi energAAAA¨tica global: causes, conseqAAAA¼AAAA¨ncies i alternatives renovables."
-    },
-    {
       "id": 4,
       "title": "IntroducciAAAA³ a la GeopolAAAA­tica",
       "subject": "CiAAAA¨ncies Socials",
@@ -55,6 +44,17 @@
       "teacherUrl": "https://ncalbet.github.io/dret-internacional-public/index.html?prof",
       "imgSrc": "",
       "tipus": "curs"
+    },
+    {
+      "id": 3,
+      "title": "Crisi EnergAAAA¨tica",
+      "subject": "CiAAAA¨ncies Socials",
+      "level": "4t ESO",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/crisi-energetica/crisi_energetica_FINAL.html",
+      "teacherUrl": "https://ncalbet.github.io/crisi-energetica/tauler_docent.html",
+      "imgSrc": "thumbnails/crisi-energetica.png",
+      "desc": "AnAAAA lisi de la crisi energAAAA¨tica global: causes, conseqAAAA¼AAAA¨ncies i alternatives renovables."
     },
     {
       "id": 5,
@@ -91,10 +91,10 @@
       "url": "https://ncalbet.github.io/phrasal-verbs/phrasal-verbs-unit7.html",
       "teacherUrl": "",
       "imgSrc": "thumbnails/phrasal-verbs.png",
-      "desc": "Recull interactiu dels phrasal verbs més freqüents en anglès.",
+      "desc": "Recull interactiu dels phrasal verbs mes frequents en angles.",
       "tipus": "recurs",
       "resourceType": "web"
     }
   ],
-  "updatedAt": "2026-05-06T09:31:32.774Z"
+  "updatedAt": "2026-05-06T09:32:07.118Z"
 }
