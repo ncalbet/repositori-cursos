@@ -66,6 +66,17 @@
       "teacherUrl": "",
       "imgSrc": "thumbnails/catala-c1.png",
       "desc": "PreparaciAAAA³ per a l'acreditaciAAAA³ C1 de catalAAAA : comprensiAAAA³ lectora i expressiAAAA³ escrita."
+    },
+    {
+      "id": 1778184962480,
+      "title": "Reported Speech",
+      "desc": "",
+      "subject": "Angles",
+      "level": "4t ESO",
+      "status": "actiu",
+      "url": "https://ncalbet.github.io/reported-speech/",
+      "teacherUrl": "",
+      "imgSrc": ""
     }
   ],
   "resources": [
@@ -96,5 +107,5 @@
       "resourceType": "web"
     }
   ],
-  "updatedAt": "2026-05-07T20:15:31.538Z"
+  "updatedAt": "2026-05-07T20:16:02.482Z"
 }
